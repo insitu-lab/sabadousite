@@ -3,8 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- SISTEMA DE MANUTENÇÃO -->
+<script src="config.js"></script>
+<script>
+if (SITE_CONFIG.maintenance === true) {
+    window.location.replace("manutencao.html");
+}
+</script>
+
 <title>Sabadou — é sábado meus calabresos</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&family=Comic+Neue:wght@700&display=swap">
+
 <style>
 :root{box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#12061f;--ink:#f6ecff;--pur:#a64dff;--hot:#ff4fd8;--lil:#f2b8ff;--card:rgba(166,77,255,.16);--nav:rgba(18,6,31,.8);--line:rgba(166,77,255,.5);
@@ -372,6 +382,7 @@ Abrir o Instagram
 <a href="#galeria">galeria</a>
 <a href="#calabresos">calabresos</a>
 <a href="#insta">instagram</a>
+<a href="privacy.html">política de privacidade</a>
 </nav>
 
 <button class="cta ghost" id="up" style="margin:0">
