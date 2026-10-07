@@ -1,3 +1,3 @@
-if (SITE_CONFIG.maintenance === true) {
-    window.location.replace("manutencao.html");
-}
+const SITE_CONFIG = {
+    maintenance: false
+};
