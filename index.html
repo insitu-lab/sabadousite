@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<!-- SISTEMA DE MANUTENÇÃO -->
 <script src="config.js"></script>
 <script>
+console.log("CONFIG:", window.SITE_CONFIG);
+
 if (window.SITE_CONFIG?.maintenance === true) {
     window.location.replace("manutencao.html");
 }
