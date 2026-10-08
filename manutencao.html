@@ -10,7 +10,7 @@
 <script>
 document.documentElement.dataset.maintenanceCheck='pending';
 const revealMaintenance=()=>delete document.documentElement.dataset.maintenanceCheck;
-(async()=>{try{const c=window.SITE_CONFIG||{};if(!c.supabaseUrl||!c.supabaseKey){revealMaintenance();return}
+(async()=>{try{const c=typeof SITE_CONFIG!=='undefined'?SITE_CONFIG:{};if(!c.supabaseUrl||!c.supabaseKey){revealMaintenance();return}
   const r=await fetch(c.supabaseUrl.replace(/\/$/,'')+'/rest/v1/site_settings?id=eq.1&select=maintenance',{headers:{apikey:c.supabaseKey}});
   if(!r.ok)throw new Error('settings unavailable');const rows=await r.json();
   if(!rows[0]?.maintenance){location.replace('index.html');return}
