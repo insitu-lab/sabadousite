@@ -6,6 +6,17 @@
 <meta name="robots" content="noindex">
 <title>Sabadou — voltamos já</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
+<script src="config.js"></script>
+<script>
+document.documentElement.dataset.maintenanceCheck='pending';
+const revealMaintenance=()=>delete document.documentElement.dataset.maintenanceCheck;
+(async()=>{try{const c=window.SITE_CONFIG||{};if(!c.supabaseUrl||!c.supabaseKey){revealMaintenance();return}
+  const r=await fetch(c.supabaseUrl.replace(/\/$/,'')+'/rest/v1/site_settings?id=eq.1&select=maintenance',{headers:{apikey:c.supabaseKey}});
+  if(!r.ok)throw new Error('settings unavailable');const rows=await r.json();
+  if(!rows[0]?.maintenance){location.replace('index.html');return}
+}catch(e){console.warn('Não foi possível verificar o modo de manutenção.',e)}revealMaintenance()})();
+</script>
+<style>html[data-maintenance-check="pending"] body{visibility:hidden}</style>
 
 <style>
 :root{
@@ -242,6 +253,8 @@ small{
     >
       Ver o Instagram
     </a>
+
+    <p><a id="admin-access" href="index.html?admin" style="color:var(--lil);font-weight:800">Acesso do administrador</a></p>
 
     <small>
       toque em qualquer lugar 💜
