@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12061f">
 
+<!-- SISTEMA DE MANUTENÇÃO -->
 <script src="config.js"></script>
 <script>
-console.log("CONFIG:", window.SITE_CONFIG);
-
-if (window.SITE_CONFIG?.maintenance === true) {
+if (SITE_CONFIG.maintenance === true) {
     window.location.replace("manutencao.html");
 }
 </script>
-    
+
 <title>Sabadou — é sábado meus calabresos</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&family=Comic+Neue:wght@700&display=swap">
 <style>
@@ -146,15 +146,53 @@ footer .wrap.fb{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wr
 @media (max-width:860px){.nv nav.tabs{display:flex;justify-content:flex-start}.nv>.cta.sm{display:none}.tiles{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}footer .wrap.fg{grid-template-columns:1fr 1fr}.panel{min-height:0}}
 @media (max-width:520px){footer .wrap.fg{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.panel.on{animation:none}.ind{transition:none}}
+
+/* ===== avisos, banner, login ===== */
+[hidden]{display:none!important}
+.nb{display:flex;align-items:center;justify-content:center;gap:.9rem;flex-wrap:wrap;padding:.65rem 1rem;background:var(--lil);color:#2a0f3d;font-weight:800;text-align:center}
+.nb a{color:#7b2cbf}.nb button{border:0;background:transparent;font-size:1.5rem;line-height:1;cursor:pointer;color:#2a0f3d;padding:0 .3rem}
+.dot{display:inline-block;width:9px;height:9px;margin-left:.45rem;border-radius:50%;background:var(--hot);vertical-align:middle;animation:pul 1.6s ease-in-out infinite}
+@keyframes pul{50%{transform:scale(1.5);opacity:.6}}
+.avl{display:grid;gap:1.2rem;max-width:820px}
+.av{padding:clamp(1.4rem,3vw,2rem);border-radius:28px;background:var(--card);border:2px solid var(--line)}
+.av.fx{border-color:var(--hot);background:linear-gradient(135deg,rgba(166,77,255,.28),rgba(255,79,216,.2))}
+.avh{display:flex;gap:.8rem;align-items:center;justify-content:space-between;flex-wrap:wrap;opacity:.9;font-size:.95rem;margin-bottom:.6rem}
+.pin{display:inline-flex;gap:.4rem;align-items:center;font-weight:800;color:var(--hot)}
+.av h3{font-size:clamp(1.4rem,3vw,2rem);line-height:1.1;margin-bottom:.7rem}.av p{margin:0;overflow-wrap:anywhere}
+.adb{display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
+.adb button{font:inherit;font-weight:800;border:2px solid var(--pur);background:transparent;color:var(--ink);border-radius:99px;padding:.4rem 1rem;cursor:pointer}
+.mut{opacity:.7}.lnk{background:none;border:0;color:var(--hot);font:inherit;font-weight:800;cursor:pointer;text-decoration:underline;padding:0}
+footer .lnk{opacity:.45;color:#f6ecff;font-size:.85rem;margin-left:.6rem}
+.fld{font:inherit;font-size:1.05rem;padding:.9rem 1.1rem;border-radius:18px;border:2px solid var(--pur);background:var(--bg);color:var(--ink);width:100%}
+textarea.fld{resize:vertical;min-height:110px}
+.ed{max-width:820px;display:grid;gap:.9rem;margin-bottom:1.6rem;padding:clamp(1.2rem,3vw,1.8rem);border-radius:28px;border:2px dashed var(--hot);background:var(--card)}
+.ed h3{font-size:1.6rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.chk{display:flex;gap:.7rem;align-items:center}.chk input{width:22px;height:22px;accent-color:var(--hot)}
+.edb{display:flex;gap:.7rem;flex-wrap:wrap}.edb .cta{margin:0}
+dialog{border:2px solid var(--pur);border-radius:28px;background:var(--bg);color:var(--ink);padding:1.6rem;width:min(92vw,420px)}
+dialog::backdrop{background:rgba(10,0,20,.78)}#lgf{display:grid;gap:.9rem}
+/* ===== celular ===== */
+button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ig img{cursor:zoom-in}
+#lb.wide{overflow:auto;place-items:start center}#lb.wide img{max-width:none;width:max(1100px,100%)}
+.mobhint{display:none}
+@media (max-width:860px){.fl{display:none}.tile{min-height:150px;gap:1.2rem}.bento{grid-auto-rows:150px}.hero p{font-size:1.15rem}}
+@media (max-width:700px){
+  .stage{margin-inline:calc(-1*clamp(20px,5vw,64px));border-radius:0;border-left:0;border-right:0}
+  .gbar{flex-wrap:nowrap}.gbar .cta{flex:1;justify-content:center;padding:1.4rem .8rem;font-size:1.25rem}
+  #vol{display:none}#pp{width:72px;height:72px}.box{font-size:.85rem}.cta{padding:.9rem 1.5rem}
+}
+@media (max-width:700px) and (orientation:portrait){.mobhint{display:block}}
 </style>
 </head>
 <body>
 <div class="bar" id="bar"></div>
 <header class="nav"><div class="wrap nv">
   <a class="logo" href="#inicio">sabadou</a>
-  <nav class="tabs" role="tablist" aria-label="Seções do site"><a role="tab" href="#inicio">início</a><a role="tab" href="#musica">música</a><a role="tab" href="#galeria">galeria</a><a role="tab" href="#jogos">jogos</a><a role="tab" href="#fanarts">fanarts</a><a role="tab" href="#calabresos">calabresos</a><i class="ind"></i></nav>
+  <nav class="tabs" role="tablist" aria-label="Seções do site"><a role="tab" href="#inicio">início</a><a role="tab" href="#avisos">avisos<i class="dot" hidden></i></a><a role="tab" href="#musica">música</a><a role="tab" href="#galeria">galeria</a><a role="tab" href="#jogos">jogos</a><a role="tab" href="#fanarts">fanarts</a><a role="tab" href="#calabresos">calabresos</a><i class="ind"></i></nav>
   <a class="cta sm" href="https://www.instagram.com/sabadouofficiall/" target="_blank" rel="noopener">Instagram</a>
 </div></header>
+<div class="nb" id="nb" hidden><span id="nbt"></span><a href="#avisos">ver aviso</a><button id="nbx" type="button" aria-label="Fechar aviso">×</button></div>
 
 <main>
 <section class="panel" id="inicio">
@@ -196,10 +234,16 @@ footer .wrap.fb{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wr
 </div></section>
 <section class="sec" id="insta"><div class="wrap ig">
   <img class="rv" src="img/instagram-perfil.jpg" alt="Perfil do Sabadou no Instagram">
-  <div class="rv"><h2>segue o sabadou lá também</h2><p>Posts novos, humor, sapo e sábado. Parcerias: chama na DM ou por e-mail, o contato está na bio.</p>
+  <div class="rv"><h2>segue o sabadou lá também</h2><p>Posts novos, humor, sapo e sábado. Parcerias: chama na DM do Instagram.</p>
     <a class="cta" href="https://www.instagram.com/sabadouofficiall/" target="_blank" rel="noopener">Abrir o Instagram</a></div>
 </div></section>
 </section>
+
+<section class="panel" id="avisos"><div class="sec"><div class="wrap">
+  <div class="sh rv"><h2>avisos</h2><p>Recados do Sabadou para os calabresos.</p></div>
+  <div id="adm-box"></div>
+  <div class="avl" id="avl"><p class="mut">Carregando avisos...</p></div>
+</div></div></section>
 
 <section class="panel" id="musica">
 <section class="sec band mu"><div class="wrap">
@@ -222,13 +266,14 @@ footer .wrap.fb{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wr
     <figure class="gi" tabindex="0" role="button" aria-label="Ampliar"><img loading="lazy" src="img/sabadou-e-calabresos.jpg" alt="Sabadou e calabresos"><figcaption>sabadou e calabresos</figcaption></figure>
   </div>
 </div></section>
-<div id="lb"><img id="lbi" alt=""></div>
+
 </section>
 
 <section class="panel" id="jogos"><div class="sec"><div class="wrap">
   <div class="sh rv"><h2>jogos</h2><p>Mais jogos chegam por aqui. Por enquanto, tem o Sabadou Run.</p></div>
   <div class="stage rv"><canvas id="dg" width="800" height="260" aria-label="Sabadou Run, jogo do sapinho que pula e agacha"></canvas></div>
   <div class="gbar"><button class="cta" id="gj" type="button">pular ↑</button><button class="cta ghost" id="gd" type="button">agachar ↓</button></div>
+  <p class="hint mobhint">Dica: gire o celular na horizontal pra jogar em tela maior.</p>
   <p class="hint">Espaço ou ↑ pula, ↓ agacha. No celular, use os botões. Cada fase é um dia da semana e a última é o sábado.</p>
 </div></div></section>
 
@@ -268,12 +313,20 @@ footer .wrap.fb{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wr
 <footer>
   <div class="wrap fg">
     <div><div class="logo" style="color:#f6ecff">sabadou</div><p class="tg">é sábado, meus calabresos.</p><a class="cta ghost sm" href="https://www.instagram.com/sabadouofficiall/" target="_blank" rel="noopener">Instagram</a></div>
-    <nav aria-label="Navegar"><h4>navegar</h4><a href="#inicio">início</a><a href="#musica">música</a><a href="#galeria">galeria</a><a href="#jogos">jogos</a><a href="#fanarts">fanarts</a><a href="#calabresos">calabresos</a></nav>
+    <nav aria-label="Navegar"><h4>navegar</h4><a href="#inicio">início</a><a href="#avisos">avisos</a><a href="#musica">música</a><a href="#galeria">galeria</a><a href="#jogos">jogos</a><a href="#fanarts">fanarts</a><a href="#calabresos">calabresos</a></nav>
     <nav aria-label="Legal"><h4>legal</h4><a href="termos.html">termos de uso</a><a href="privacy.html">política de privacidade</a><a href="termos.html#direitos">direitos autorais</a><a href="termos.html#fanarts">regras das fanarts</a></nav>
-    <div><h4>parcerias</h4><p>Chama na DM do Instagram ou no e-mail que está na bio.</p><button class="cta ghost sm" id="up" type="button">Voltar ao topo</button></div>
+    <div><h4>parcerias</h4><p>Chama na DM do Instagram.</p><button class="cta ghost sm" id="up" type="button">Voltar ao topo</button></div>
   </div>
-  <div class="wrap fb"><span>© <span id="yr">2026</span> Sabadou. Todos os direitos reservados.</span><span>Feito pra quem vive de sábado.</span></div>
+  <div class="wrap fb"><span>© <span id="yr">2026</span> Sabadou. Todos os direitos reservados.</span><span>Feito pra quem vive de sábado. <button class="lnk" id="adm" type="button" hidden>admin</button></span></div>
 </footer>
+
+<div id="lb"><img id="lbi" alt=""></div>
+
+<dialog id="lg"><form id="lgf"><h3 style="font:400 1.8rem var(--disp);margin:0">entrar (admin)</h3>
+  <input class="fld" id="le" type="email" placeholder="E-mail" autocomplete="username" required>
+  <input class="fld" id="lp" type="password" placeholder="Senha" autocomplete="current-password" required>
+  <p class="mut" id="lm" style="margin:0;min-height:1.4em"></p>
+  <div class="edb"><button class="cta" type="submit">entrar</button><button class="cta ghost" type="button" id="lc">cancelar</button></div></form></dialog>
 
 <script src="js/sabadou-run.js"></script>
 <script>
@@ -356,7 +409,7 @@ async function meme(){const t=($('#mw').value.trim()||'sábado').toLowerCase(),S
 SRC.onload=meme;let mt;$('#mw').oninput=()=>{clearTimeout(mt);mt=setTimeout(meme,250)};
 // galeria ampliada
 const lb=$('#lb');document.querySelectorAll('.gi').forEach(f=>{const o=()=>{$('#lbi').src=f.querySelector('img').src;lb.classList.add('on')};f.onclick=o;f.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();o()}}});
-lb.onclick=()=>lb.classList.remove('on');addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on')});
+lb.onclick=()=>lb.classList.remove('on','wide');addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('on','wide')});
 
 
 // revelar ao rolar + contadores
@@ -367,12 +420,12 @@ if(!still)document.querySelectorAll('[data-n]').forEach(e=>cio.observe(e));
 
 
 // ===== abas (rotas por #hash) =====
-const TABS=['inicio','musica','galeria','jogos','fanarts','calabresos'],tabLinks=document.querySelectorAll('.tabs a'),ind=$('.ind'),mini=$('#mini');let cur=-1;
+const TABS=['inicio','avisos','musica','galeria','jogos','fanarts','calabresos'],tabLinks=document.querySelectorAll('.tabs a'),ind=$('.ind'),mini=$('#mini');let cur=-1;
 function moveInd(){const a=document.querySelector('.tabs a.on');if(a){ind.style.width=a.offsetWidth+'px';ind.style.transform='translateX('+a.offsetLeft+'px)'}}
 function go(id,anchor){const i=TABS.indexOf(id);if(i<0)return;const left=i<cur;
   document.querySelectorAll('.panel').forEach(p=>{p.classList.remove('on','l');if(p.id===id){p.classList.add('on');if(left)p.classList.add('l')}});
   tabLinks.forEach(a=>{const on=a.getAttribute('href')==='#'+id;a.classList.toggle('on',on);a.setAttribute('aria-selected',on);if(on)a.scrollIntoView({inline:'center',block:'nearest'})});
-  cur=i;moveInd();mini.classList.toggle('hide',id==='musica');
+  cur=i;moveInd();mini.classList.toggle('hide',id==='musica'||id==='jogos');
   const e=anchor&&document.getElementById(anchor);if(e)e.scrollIntoView({behavior:still?'auto':'smooth'});else scrollTo(0,0)}
 function route(){const h=decodeURIComponent(location.hash.slice(1))||'inicio';if(TABS.includes(h))return go(h);
   const e=document.getElementById(h),p=e&&e.closest('.panel');p?go(p.id,h):go('inicio')}
@@ -386,6 +439,71 @@ mini.onclick=()=>au.paused?au.play():au.pause();
 document.head.insertAdjacentHTML('beforeend','<style>#mini.hide{display:none!important}</style>');
 $('#yr').textContent=new Date().getFullYear();
 
+
+// imagem larga do Instagram abre grande e rola para os lados
+const ip=document.querySelector('#insta .ig img');if(ip)ip.onclick=()=>{$('#lbi').src=ip.src;lb.classList.add('on','wide')};
+
+// ===== avisos (avisos.json ou Supabase) + área do admin =====
+const CFG=window.SITE_CONFIG||{},ss=(k,v)=>{try{return v===undefined?sessionStorage.getItem(k):sessionStorage.setItem(k,v)}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtD=d=>{try{return new Date(/^\d{4}-\d\d-\d\d$/.test(d)?d+'T12:00:00':d).toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}catch(e){return''}};
+const PIN='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M14 3l7 7-3 1-3.5 3.5.5 4.5-1.5 1.5-4-4-5 5-1-1 5-5-4-4L6 14.500 10.500 14 14 10.500z"/></svg>';
+let sb=null,isAdmin=false,AV=[],editId=null;
+async function loadAv(){
+  try{
+    if(sb){const r=await sb.from('avisos').select('*').order('fixado',{ascending:false}).order('criado_em',{ascending:false});if(r.error)throw r.error;AV=r.data}
+    else{const r=await fetch('avisos.json',{cache:'no-store'});if(!r.ok)throw 0;
+      AV=(await r.json()).map((a,i)=>({id:i,titulo:a.titulo,texto:a.texto,fixado:!!a.fixado,criado_em:a.data}));
+      AV.sort((a,b)=>(b.fixado-a.fixado)||String(b.criado_em).localeCompare(String(a.criado_em)))}
+  }catch(e){if(!AV.length)$('#avl').innerHTML='<p class="mut">Não consegui carregar os avisos agora.</p>';return}
+  renderAv();
+}
+function renderAv(){
+  $('#avl').innerHTML=AV.length?AV.map(a=>`<article class="av${a.fixado?' fx':''}"><div class="avh"><span>${a.fixado?'<span class="pin">'+PIN+'fixado</span>':''}</span><time>${esc(fmtD(a.criado_em))}</time></div><h3>${esc(a.titulo)}</h3><p>${esc(a.texto).replace(/\n/g,'<br>')}</p>${isAdmin?`<div class="adb"><button type="button" data-a="fix" data-id="${a.id}">${a.fixado?'desafixar':'fixar'}</button><button type="button" data-a="ed" data-id="${a.id}">editar</button><button type="button" data-a="del" data-id="${a.id}">apagar</button></div>`:''}</article>`).join(''):'<p class="mut">Nenhum aviso por enquanto.</p>';
+  const f=AV.find(a=>a.fixado),dot=document.querySelector('.tabs .dot');if(dot)dot.hidden=!f;
+  const key='nb_'+(f?f.id+'_'+f.titulo:'');
+  if(f&&!ss(key)){$('#nbt').textContent=f.titulo;$('#nb').hidden=false;$('#nbx').onclick=()=>{$('#nb').hidden=true;ss(key,1)}}else $('#nb').hidden=true;
+}
+$('#avl').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-a]');if(!b||!isAdmin||!sb)return;const a=AV.find(x=>String(x.id)===b.dataset.id);if(!a)return;
+  if(b.dataset.a==='del'&&confirm('Apagar este aviso?')){await sb.from('avisos').delete().eq('id',a.id);loadAv()}
+  if(b.dataset.a==='fix'){await sb.from('avisos').update({fixado:!a.fixado}).eq('id',a.id);loadAv()}
+  if(b.dataset.a==='ed'){editId=a.id;$('#at').value=a.titulo;$('#ax').value=a.texto;$('#af').checked=a.fixado;$('#apub').textContent='salvar';scrollTo({top:$('#adm-box').offsetTop-90,behavior:'smooth'})}
+});
+function renderAdm(){
+  const b=$('#adm-box');if(!isAdmin){b.innerHTML='';return}
+  b.innerHTML=`<form class="ed" id="edf"><h3>${editId?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">publicar</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am"></p></form>`;
+  $('#edf').onsubmit=async ev=>{ev.preventDefault();
+    const row={titulo:$('#at').value.trim(),texto:$('#ax').value.trim(),fixado:$('#af').checked};
+    const r=editId!==null?await sb.from('avisos').update(row).eq('id',editId):await sb.from('avisos').insert(row);
+    if(r.error){$('#am').textContent='Erro: '+r.error.message;return}
+    editId=null;renderAdm();loadAv()};
+  $('#acl').onclick=()=>{editId=null;renderAdm()};
+  $('#aout').onclick=async()=>{await sb.auth.signOut();isAdmin=false;renderAdm();renderAv()};
+}
+async function checkAdmin(){
+  if(!sb)return;isAdmin=false;
+  const s=await sb.auth.getSession();
+  if(s.data.session){const r=await sb.from('admins').select('user_id').maybeSingle();isAdmin=!!(r.data)}
+  renderAdm();renderAv();
+}
+const lg=$('#lg');
+$('#adm').onclick=()=>{$('#lm').textContent='';lg.showModal();$('#le').focus()};
+$('#lc').onclick=()=>lg.close();
+$('#lgf').onsubmit=async ev=>{ev.preventDefault();const m=$('#lm');m.textContent='Entrando...';
+  const r=await sb.auth.signInWithPassword({email:$('#le').value.trim(),password:$('#lp').value});
+  if(r.error){m.textContent='E-mail ou senha incorretos.';return}
+  await checkAdmin();
+  if(!isAdmin){await sb.auth.signOut();m.textContent='Essa conta não tem permissão de administrador.';return}
+  lg.close();$('#lp').value='';location.hash='avisos'};
+(async()=>{
+  if(CFG.supabaseUrl&&CFG.supabaseKey){
+    try{await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+      sb=supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);$('#adm').hidden=false}catch(e){sb=null}
+  }
+  await loadAv();await checkAdmin();
+  setInterval(()=>{if(!document.hidden&&editId===null)loadAv()},60000); // atualiza sozinho a cada 1 min
+})();
 </script>
 </body>
 </html>
