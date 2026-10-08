@@ -1,3 +1,6 @@
 const SITE_CONFIG = {
-    maintenance: false
+    maintenance: false,
+
+    supabaseUrl: 'https://seuprojeto.supabase.co',
+    supabaseKey: 'sua-chave-publica'
 };
