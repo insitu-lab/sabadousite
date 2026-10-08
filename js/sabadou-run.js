@@ -1,8 +1,8 @@
 /* Sabadou Run — jogo do sapinho (pula, agacha, fases = dias da semana até o sábado) */
 (()=>{
 const cv=document.getElementById('dg');if(!cv)return;
-const c=cv.getContext('2d'),W=800,H=260,G=214,$=s=>document.querySelector(s);
-const dpr=Math.min(devicePixelRatio||1,2);cv.width=W*dpr;cv.height=H*dpr;c.setTransform(dpr,0,0,dpr,0,0);
+const c=cv.getContext('2d'),$=s=>document.querySelector(s);let W=800,H=260,G=214,mob=false,ready=false;
+const dpr=Math.min(devicePixelRatio||1,2);
 // [nome da fase, cor do topo, cor do fundo]
 const PH=[['segunda','#1a0a33','#3b1f6e'],['terça','#1e0c3a','#4a2486'],['quarta','#240e44','#5c2a9a'],['quinta','#2c1050','#7a31b0'],['sexta','#38125a','#a53cc0'],['sábado','#4a1264','#e04fc4']];
 const PL=220; // pontos por fase
@@ -10,9 +10,15 @@ const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 let st='idle',score=0,hi=0,phase=0,v=5.2,y=G,vy=0,down=false,ducking=false,obs=[],gap=300,t=0,banner=0,off=0,last=0,shake=0;
 let ct=hex(PH[0][1]),cb=hex(PH[0][2]);
 try{hi=+localStorage.getItem('sab_hi')||0}catch(e){}
-const stars=Array.from({length:36},()=>({x:Math.random()*W,y:Math.random()*150,s:Math.random()*1.6+.4}));
+let stars=[];
 const active=()=>cv.offsetParent!==null;
 
+// celular: palco mais alto e estreito, assim o sapo e os obstáculos ficam maiores
+function size(){const m=innerWidth<700;if(ready&&m===mob)return;ready=true;mob=m;W=m?420:800;H=m?330:260;G=H-46;
+  cv.width=W*dpr;cv.height=H*dpr;c.setTransform(dpr,0,0,dpr,0,0);
+  stars=Array.from({length:36},()=>({x:Math.random()*W,y:Math.random()*H*.58,s:Math.random()*1.6+.4}));
+  if(st==='run')st='idle';obs=[];y=G;vy=0}
+const sp=()=>mob?.92:1;size();addEventListener('resize',size);
 function reset(){score=0;phase=0;v=5.2;y=G;vy=0;obs=[];gap=320;banner=100;st='run';shake=0}
 function jump(){if(st!=='run'){reset();return}if(y>=G-.5)vy=-12.8}
 function spawn(){
@@ -23,9 +29,9 @@ function spawn(){
 }
 function step(dt){
   if(st!=='run')return;
-  score+=v*dt*.06;
+  score+=v*dt*.06/sp();
   const p=Math.min(5,Math.floor(score/PL));if(p!==phase){phase=p;banner=120}
-  v=Math.min(11.5,5.2+phase*.85+(score%PL)/PL*.5);
+  v=Math.min(11.5,5.2+phase*.85+(score%PL)/PL*.5)*sp();
   vy+=(down&&y<G?1.5:.65)*dt;y+=vy*dt;if(y>=G){y=G;vy=0}
   ducking=down&&y>=G;off=(off+v*dt)%40;
   gap-=v*dt;if(gap<=0){spawn();gap=260+Math.random()*220+v*16}
@@ -75,12 +81,12 @@ function txt(s,x,y,font,a=1){c.globalAlpha=a;c.fillStyle='#fff';c.font=font;c.te
 function draw(){
   c.save();if(shake>0)c.translate((Math.random()-.5)*7,0);
   bg();obs.forEach(obstacle);frog();c.restore();
-  c.fillStyle='#fff';c.font='800 18px Nunito,sans-serif';
+  c.fillStyle='#fff';c.font='800 '+(mob?15:18)+'px Nunito,sans-serif';
   c.textAlign='right';c.fillText('HI '+String(hi).padStart(5,'0')+'   '+String(Math.floor(score)).padStart(5,'0'),W-16,28);
   c.textAlign='left';c.fillText(PH[phase][0]+' · fase '+(phase+1)+'/6',16,28);
-  if(banner>0&&st==='run')txt(phase===5?'É SÁBADO!!!':PH[phase][0].toUpperCase(),W/2,110,'400 58px "Bagel Fat One",Impact,sans-serif',Math.min(1,banner/30));
-  if(st==='idle')txt('aperta espaço ou toca aqui pra começar',W/2,110,'800 22px Nunito,sans-serif');
-  if(st==='dead'){txt(phase===5?'quase! o sábado é seu':'não é sábado :(',W/2,100,'400 46px "Bagel Fat One",Impact,sans-serif');txt('espaço ou toque pra tentar de novo',W/2,134,'800 20px Nunito,sans-serif')}
+  if(banner>0&&st==='run')txt(phase===5?'É SÁBADO!!!':PH[phase][0].toUpperCase(),W/2,mob?130:110,'400 '+(mob?46:58)+'px "Bagel Fat One",Impact,sans-serif',Math.min(1,banner/30));
+  if(st==='idle')txt(mob?'toque aqui pra começar':'aperta espaço ou toca aqui pra começar',W/2,mob?130:110,'800 '+(mob?20:22)+'px Nunito,sans-serif');
+  if(st==='dead'){txt(phase===5?'quase! o sábado é seu':'não é sábado :(',W/2,mob?120:100,'400 '+(mob?32:46)+'px "Bagel Fat One",Impact,sans-serif');txt(mob?'toque pra tentar de novo':'espaço ou toque pra tentar de novo',W/2,mob?154:134,'800 '+(mob?18:20)+'px Nunito,sans-serif')}
 }
 function loop(now){
   requestAnimationFrame(loop);
