@@ -8,10 +8,29 @@
 <!-- SISTEMA DE MANUTENÇÃO -->
 <script src="config.js"></script>
 <script>
-if (SITE_CONFIG.maintenance === true) {
-    window.location.replace("manutencao.html");
-}
+document.documentElement.dataset.maintenanceCheck='pending';
+const revealSite=()=>delete document.documentElement.dataset.maintenanceCheck;
+const cfg=window.SITE_CONFIG||{};
+if(new URLSearchParams(location.search).has('admin')) revealSite();
+else if(cfg.supabaseUrl&&cfg.supabaseKey){
+  (async()=>{try{
+    const base=cfg.supabaseUrl.replace(/\/$/,'');
+    const headers={apikey:cfg.supabaseKey};
+    const settings=await fetch(base+'/rest/v1/site_settings?id=eq.1&select=maintenance',{headers});
+    if(!settings.ok)throw new Error('settings unavailable');
+    const rows=await settings.json();
+    if(rows[0]?.maintenance){
+      const ref=new URL(base).hostname.split('.')[0],raw=localStorage.getItem('sb-'+ref+'-auth-token');
+      const session=raw&&JSON.parse(raw),token=session?.access_token,userId=session?.user?.id;
+      let admin=false;
+      if(token&&userId){const check=await fetch(base+'/rest/v1/admins?user_id=eq.'+encodeURIComponent(userId)+'&select=user_id',{headers:{...headers,Authorization:'Bearer '+token}});admin=check.ok&&(await check.json()).length>0}
+      if(!admin){location.replace('manutencao.html');return}
+    }
+  }catch(e){console.warn('Não foi possível verificar o modo de manutenção.',e)}
+  revealSite()})();
+}else revealSite();
 </script>
+<style>html[data-maintenance-check="pending"] body{visibility:hidden}</style>
 
 <title>Sabadou — é sábado meus calabresos</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&family=Comic+Neue:wght@700&display=swap">
@@ -472,7 +491,11 @@ $('#avl').addEventListener('click',async e=>{
 });
 function renderAdm(){
   const b=$('#adm-box');if(!isAdmin){b.innerHTML='';return}
-  b.innerHTML=`<form class="ed" id="edf"><h3>${editId?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">publicar</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am"></p></form>`;
+  b.innerHTML=`<form class="ed" id="edf"><h3>${editId?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">publicar</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am"></p></form><section class="ed"><h3>manutenção do site</h3><p class="mut" style="margin:0">Quando ativada, visitantes verão a página de manutenção. Para voltar ao painel durante a manutenção, use “Acesso do administrador” na página de manutenção.</p><button class="cta ghost" type="button" id="maintenance-toggle">carregando...</button><p class="mut" id="maintenance-status" aria-live="polite"></p></section>`;
+  const maintenanceButton=$('#maintenance-toggle'),maintenanceStatus=$('#maintenance-status');
+  const readMaintenance=async()=>{const r=await sb.from('site_settings').select('maintenance').eq('id',1).single();if(r.error){maintenanceStatus.textContent='Ative este recurso executando uma vez o arquivo supabase-manutencao.sql no Supabase.';maintenanceButton.disabled=true;return}maintenanceButton.dataset.enabled=String(!!r.data.maintenance);maintenanceButton.textContent=r.data.maintenance?'desativar manutenção':'ativar manutenção'};
+  readMaintenance();
+  maintenanceButton.onclick=async()=>{const enabled=maintenanceButton.dataset.enabled==='true',next=!enabled;if(!confirm(next?'Ativar a manutenção? Visitantes serão direcionados para a página de manutenção.':'Desativar a manutenção e abrir o site para todos?'))return;maintenanceButton.disabled=true;maintenanceStatus.textContent='Salvando...';const r=await sb.rpc('set_site_maintenance',{p_enabled:next});maintenanceButton.disabled=false;if(r.error){maintenanceStatus.textContent='Não foi possível alterar. Confira se executou supabase-manutencao.sql. '+r.error.message;return}maintenanceStatus.textContent=next?'Manutenção ativada.':'Manutenção desativada.';maintenanceButton.dataset.enabled=String(next);maintenanceButton.textContent=next?'desativar manutenção':'ativar manutenção'};
   $('#edf').onsubmit=async ev=>{ev.preventDefault();
     const row={titulo:$('#at').value.trim(),texto:$('#ax').value.trim(),fixado:$('#af').checked};
     const r=editId!==null?await sb.from('avisos').update(row).eq('id',editId):await sb.from('avisos').insert(row);
