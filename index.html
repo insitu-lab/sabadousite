@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#12061f">
 
 <!-- SISTEMA DE MANUTENÇÃO -->
-<script src="config.js"></script>
+<script src="config.js?v=20261009-public-fixes"></script>
 <script>
 document.documentElement.dataset.maintenanceCheck='pending';
 const revealSite=()=>delete document.documentElement.dataset.maintenanceCheck;
@@ -142,8 +142,8 @@ footer .cta{color:#f6ecff}
 .tile:hover{transform:translateY(-8px) rotate(-1deg);background:linear-gradient(135deg,rgba(166,77,255,.4),rgba(255,79,216,.3))}
 .tile b{font:400 clamp(1.8rem,3vw,2.6rem)/1 var(--disp)}.tile b::after{content:" →"}.tile span{opacity:.85}
 /* ===== jogos ===== */
-.stage{border-radius:32px;overflow:hidden;border:3px solid var(--pur);box-shadow:0 30px 90px rgba(166,77,255,.4);background:#12061f}
-.stage canvas{display:block;width:100%;height:auto;touch-action:none}
+.stage{border-radius:10px;overflow:hidden;border:4px solid #f2b8ff;box-shadow:0 8px 0 #612b91,0 18px 50px rgba(166,77,255,.38);background:#1a0833;image-rendering:pixelated}
+.stage canvas{display:block;width:100%;height:auto;touch-action:none;image-rendering:pixelated}
 .gbar{display:flex;gap:1rem;margin-top:1.4rem;flex-wrap:wrap}.gbar .cta{margin:0;user-select:none;touch-action:manipulation}
 .hint{opacity:.75;margin-top:1rem}
 /* ===== fanarts ===== */
@@ -347,7 +347,8 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <p class="mut" id="lm" style="margin:0;min-height:1.4em"></p>
   <div class="edb"><button class="cta" type="submit">entrar</button><button class="cta ghost" type="button" id="lc">cancelar</button></div></form></dialog>
 
-<script src="js/sabadou-run.js"></script>
+<script src="js/sabadou-sounds.js?v=20261009-public-fixes"></script>
+<script src="js/sabadou-run.js?v=20261009-public-fixes"></script>
 <script>
 
 const PLAY='<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
@@ -467,7 +468,7 @@ const CFG=(typeof SITE_CONFIG!=='undefined'?SITE_CONFIG:window.SITE_CONFIG)||{},
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtD=d=>{try{return new Date(/^\d{4}-\d\d-\d\d$/.test(d)?d+'T12:00:00':d).toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}catch(e){return''}};
 const PIN='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M14 3l7 7-3 1-3.5 3.5.5 4.5-1.5 1.5-4-4-5 5-1-1 5-5-4-4L6 14.500 10.500 14 14 10.500z"/></svg>';
-let sb=null,isAdmin=false,AV=[],editId=null;
+let sb=null,isAdmin=false,AV=[],editId=null,adminUserId=null,adminChecks=Promise.resolve();
 async function loadAv(){
   try{
     if(sb){const r=await sb.from('avisos').select('*').order('fixado',{ascending:false}).order('criado_em',{ascending:false});if(r.error)throw r.error;AV=r.data}
@@ -484,47 +485,95 @@ function renderAv(){
   if(f&&!ss(key)){$('#nbt').textContent=f.titulo;$('#nb').hidden=false;$('#nbx').onclick=()=>{$('#nb').hidden=true;ss(key,1)}}else $('#nb').hidden=true;
 }
 $('#avl').addEventListener('click',async e=>{
-  const b=e.target.closest('button[data-a]');if(!b||!isAdmin||!sb)return;const a=AV.find(x=>String(x.id)===b.dataset.id);if(!a)return;
-  if(b.dataset.a==='del'&&confirm('Apagar este aviso?')){await sb.from('avisos').delete().eq('id',a.id);loadAv()}
-  if(b.dataset.a==='fix'){await sb.from('avisos').update({fixado:!a.fixado}).eq('id',a.id);loadAv()}
-  if(b.dataset.a==='ed'){editId=a.id;$('#at').value=a.titulo;$('#ax').value=a.texto;$('#af').checked=a.fixado;$('#apub').textContent='salvar';scrollTo({top:$('#adm-box').offsetTop-90,behavior:'smooth'})}
+  const b=e.target.closest('button[data-a]');if(!b||b.disabled||!isAdmin||!sb)return;const a=AV.find(x=>String(x.id)===b.dataset.id);if(!a)return;
+  if(b.dataset.a==='ed'){editId=a.id;renderAdm();$('#adm-box').scrollIntoView({behavior:still?'auto':'smooth'});return}
+  if(b.dataset.a==='del'&&!confirm('Apagar este aviso?'))return;
+  if(!['del','fix'].includes(b.dataset.a))return;
+  b.disabled=true;
+  try{
+    const r=b.dataset.a==='del'?await sb.from('avisos').delete().eq('id',a.id):await sb.from('avisos').update({fixado:!a.fixado}).eq('id',a.id);
+    if(r.error)throw r.error;
+    if(b.dataset.a==='del'&&editId===a.id){editId=null;renderAdm()}
+    await loadAv();
+  }catch(error){alert('Não foi possível alterar o aviso. '+(error.message||'Tente novamente.'))}
+  finally{b.disabled=false}
 });
 function renderAdm(){
   const b=$('#adm-box');if(!isAdmin){b.innerHTML='';return}
-  b.innerHTML=`<form class="ed" id="edf"><h3>${editId?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">publicar</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am"></p></form><section class="ed"><h3>manutenção do site</h3><p class="mut" style="margin:0">Quando ativada, somente uma sessão de administrador reconhecida pelo Supabase poderá ver o site; os demais visitantes verão a página de manutenção.</p><button class="cta ghost" type="button" id="maintenance-toggle">carregando...</button><p class="mut" id="maintenance-status" aria-live="polite"></p></section>`;
+  b.innerHTML=`<form class="ed" id="edf"><h3>${editId!==null?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">${editId!==null?'salvar':'publicar'}</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am" aria-live="polite"></p></form><section class="ed"><h3>manutenção do site</h3><p class="mut" style="margin:0">Quando ativada, somente uma sessão de administrador reconhecida pelo Supabase poderá ver o site; os demais visitantes verão a página de manutenção.</p><button class="cta ghost" type="button" id="maintenance-toggle" disabled>carregando...</button><p class="mut" id="maintenance-status" aria-live="polite"></p></section>`;
+  const editing=AV.find(a=>a.id===editId);if(editing){$('#at').value=editing.titulo;$('#ax').value=editing.texto;$('#af').checked=!!editing.fixado}
   const maintenanceButton=$('#maintenance-toggle'),maintenanceStatus=$('#maintenance-status');
-  const readMaintenance=async()=>{const r=await sb.from('site_settings').select('maintenance').eq('id',1).single();if(r.error){maintenanceStatus.textContent='Ative este recurso executando uma vez o arquivo supabase-manutencao.sql no Supabase.';maintenanceButton.disabled=true;return}maintenanceButton.dataset.enabled=String(!!r.data.maintenance);maintenanceButton.textContent=r.data.maintenance?'desativar manutenção':'ativar manutenção'};
+  const readMaintenance=async()=>{try{
+    const r=await sb.from('site_settings').select('maintenance').eq('id',1).single();if(r.error)throw r.error;
+    maintenanceButton.dataset.enabled=String(!!r.data.maintenance);maintenanceButton.textContent=r.data.maintenance?'desativar manutenção':'ativar manutenção';maintenanceButton.disabled=false;
+  }catch(error){maintenanceStatus.textContent='Não foi possível carregar a manutenção. Confira a conexão e o arquivo supabase-manutencao.sql. '+(error.message||'');maintenanceButton.textContent='manutenção indisponível'}};
   readMaintenance();
-  maintenanceButton.onclick=async()=>{const enabled=maintenanceButton.dataset.enabled==='true',next=!enabled;if(!confirm(next?'Ativar a manutenção? Visitantes serão direcionados para a página de manutenção.':'Desativar a manutenção e abrir o site para todos?'))return;maintenanceButton.disabled=true;maintenanceStatus.textContent='Salvando...';const r=await sb.rpc('set_site_maintenance',{p_enabled:next});maintenanceButton.disabled=false;if(r.error){maintenanceStatus.textContent='Não foi possível alterar. Confira se executou supabase-manutencao.sql. '+r.error.message;return}maintenanceStatus.textContent=next?'Manutenção ativada.':'Manutenção desativada.';maintenanceButton.dataset.enabled=String(next);maintenanceButton.textContent=next?'desativar manutenção':'ativar manutenção'};
-  $('#edf').onsubmit=async ev=>{ev.preventDefault();
+  maintenanceButton.onclick=async()=>{
+    if(maintenanceButton.disabled||!isAdmin)return;
+    const enabled=maintenanceButton.dataset.enabled==='true',next=!enabled;if(!confirm(next?'Ativar a manutenção? Visitantes serão direcionados para a página de manutenção.':'Desativar a manutenção e abrir o site para todos?'))return;
+    maintenanceButton.disabled=true;maintenanceStatus.textContent='Salvando...';
+    try{const r=await sb.rpc('set_site_maintenance',{p_enabled:next});if(r.error)throw r.error;
+      maintenanceStatus.textContent=next?'Manutenção ativada.':'Manutenção desativada.';maintenanceButton.dataset.enabled=String(next);maintenanceButton.textContent=next?'desativar manutenção':'ativar manutenção';
+    }catch(error){maintenanceStatus.textContent='Não foi possível alterar. '+(error.message||'Tente novamente.')}
+    finally{maintenanceButton.disabled=false}
+  };
+  const form=$('#edf'),publish=$('#apub'),clear=$('#acl'),message=$('#am');
+  form.onsubmit=async ev=>{ev.preventDefault();if(publish.disabled||!isAdmin||!sb)return;
     const row={titulo:$('#at').value.trim(),texto:$('#ax').value.trim(),fixado:$('#af').checked};
-    const r=editId!==null?await sb.from('avisos').update(row).eq('id',editId):await sb.from('avisos').insert(row);
-    if(r.error){$('#am').textContent='Erro: '+r.error.message;return}
-    editId=null;renderAdm();loadAv()};
+    if(!row.titulo||!row.texto){message.textContent='Preencha o título e o texto.';return}
+    publish.disabled=true;clear.disabled=true;message.textContent='Salvando...';
+    try{const r=editId!==null?await sb.from('avisos').update(row).eq('id',editId):await sb.from('avisos').insert(row);if(r.error)throw r.error;
+      if(!form.isConnected)return;editId=null;await loadAv();renderAdm();
+    }catch(error){message.textContent='Não foi possível salvar. '+(error.message||'Tente novamente.')}
+    finally{publish.disabled=false;clear.disabled=false}
+  };
   $('#acl').onclick=()=>{editId=null;renderAdm()};
-  $('#aout').onclick=async()=>{await sb.auth.signOut();isAdmin=false;renderAdm();renderAv()};
+  $('#aout').onclick=async ev=>{const button=ev.currentTarget;button.disabled=true;
+    try{const r=await sb.auth.signOut({scope:'local'});if(r.error)throw r.error;await checkAdmin()}
+    catch(error){message.textContent='Não foi possível sair. '+(error.message||'Tente novamente.')}
+    finally{button.disabled=false}
+  };
 }
-async function checkAdmin(){
-  if(!sb)return;isAdmin=false;
-  const s=await sb.auth.getSession();
-  if(s.data.session){const r=await sb.from('admins').select('user_id').maybeSingle();isAdmin=!!(r.data)}
-  renderAdm();renderAv();
+function applyAdmin(userId,allowed){
+  const changed=adminUserId!==userId||isAdmin!==allowed;
+  adminUserId=userId;isAdmin=allowed;
+  if(changed){editId=null;renderAdm()}
+  renderAv();
+}
+function checkAdmin(){
+  const task=adminChecks.catch(()=>{}).then(async()=>{
+    if(!sb){applyAdmin(null,false);return false}
+    try{
+      const s=await sb.auth.getSession();if(s.error)throw s.error;
+      const userId=s.data.session?.user?.id||null;let allowed=false;
+      if(userId){const r=await sb.from('admins').select('user_id').eq('user_id',userId).maybeSingle();if(r.error)throw r.error;allowed=r.data?.user_id===userId}
+      applyAdmin(userId,allowed);return allowed;
+    }catch(error){applyAdmin(null,false);throw error}
+  });
+  adminChecks=task;return task;
 }
 const lg=$('#lg');
 $('#adm').onclick=()=>{$('#lm').textContent='';lg.showModal();$('#le').focus()};
 $('#lc').onclick=()=>lg.close();
-$('#lgf').onsubmit=async ev=>{ev.preventDefault();const m=$('#lm');m.textContent='Entrando...';
-  const r=await sb.auth.signInWithPassword({email:$('#le').value.trim(),password:$('#lp').value});
-  if(r.error){m.textContent='E-mail ou senha incorretos.';return}
-  await checkAdmin();
-  if(!isAdmin){await sb.auth.signOut();m.textContent='Essa conta não tem permissão de administrador.';return}
-  lg.close();$('#lp').value='';location.hash='avisos'};
+$('#lgf').onsubmit=async ev=>{ev.preventDefault();const m=$('#lm'),button=$('#lgf button[type="submit"]');if(button.disabled)return;
+  if(!sb){m.textContent='Login indisponível no momento. Recarregue a página e tente novamente.';return}
+  button.disabled=true;m.textContent='Entrando...';
+  try{
+    const r=await sb.auth.signInWithPassword({email:$('#le').value.trim(),password:$('#lp').value});
+    if(r.error){m.textContent=r.error.code==='invalid_credentials'?'E-mail ou senha incorretos.':'Não foi possível entrar agora. Confira a conexão e tente novamente.';return}
+    if(!await checkAdmin()){const out=await sb.auth.signOut({scope:'local'});if(out.error)throw out.error;m.textContent='Essa conta não tem permissão de administrador.';return}
+    lg.close();$('#lp').value='';location.hash='avisos';
+  }catch(error){m.textContent='Não foi possível confirmar o acesso. Confira a conexão e tente novamente.';console.warn('Erro no login administrativo:',error)}
+  finally{button.disabled=false}
+};
 (async()=>{
   if(CFG.supabaseUrl&&CFG.supabaseKey){
     try{await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
-      sb=supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);$('#adm').hidden=false}catch(e){sb=null}
+      sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);$('#adm').hidden=false;
+      sb.auth.onAuthStateChange(()=>setTimeout(()=>checkAdmin().catch(error=>console.warn('Não foi possível atualizar a sessão administrativa:',error)),0));
+    }catch(e){sb=null;console.warn('Não foi possível carregar o login administrativo:',e)}
   }
-  await loadAv();await checkAdmin();
+  await loadAv();await checkAdmin().catch(error=>console.warn('Não foi possível verificar o administrador:',error));
   setInterval(()=>{if(!document.hidden&&editId===null)loadAv()},60000); // atualiza sozinho a cada 1 min
 })();
 </script>
