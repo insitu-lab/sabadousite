@@ -7,6 +7,7 @@
 
 <!-- SISTEMA DE MANUTENÇÃO -->
 <script src="config.js?v=20261009-public-fixes"></script>
+<script src="js/sabadou-maintenance.js?v=20261009-prazo"></script>
 <script>
 document.documentElement.dataset.maintenanceCheck='pending';
 const revealSite=()=>delete document.documentElement.dataset.maintenanceCheck;
@@ -15,11 +16,8 @@ if(cfg.supabaseUrl&&cfg.supabaseKey){
   (async()=>{try{
     const base=cfg.supabaseUrl.replace(/\/$/,'');
     const headers={apikey:cfg.supabaseKey};
-    const settings=await fetch(base+'/rest/v1/site_settings?id=eq.1&select=maintenance',{headers});
-    if(!settings.ok)throw new Error('settings unavailable');
-    const rows=await settings.json();
-    const deadline=Date.parse(cfg.maintenanceUntil);
-    if(rows[0]?.maintenance&&(!Number.isFinite(deadline)||Date.now()<deadline)){
+    const settings=await window.SabadouMaintenance.read();
+    if(window.SabadouMaintenance.isActive(settings)){
       const ref=new URL(base).hostname.split('.')[0],raw=localStorage.getItem('sb-'+ref+'-auth-token');
       const session=raw&&JSON.parse(raw),token=session?.access_token,userId=session?.user?.id;
       let admin=false;
@@ -500,23 +498,9 @@ $('#avl').addEventListener('click',async e=>{
 });
 function renderAdm(){
   const b=$('#adm-box');if(!isAdmin){b.innerHTML='';return}
-  b.innerHTML=`<form class="ed" id="edf"><h3>${editId!==null?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">${editId!==null?'salvar':'publicar'}</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am" aria-live="polite"></p></form><section class="ed"><h3>manutenção do site</h3><p class="mut" style="margin:0">Quando ativada, somente uma sessão de administrador reconhecida pelo Supabase poderá ver o site; os demais visitantes verão a página de manutenção.</p><button class="cta ghost" type="button" id="maintenance-toggle" disabled>carregando...</button><p class="mut" id="maintenance-status" aria-live="polite"></p></section>`;
+  b.innerHTML=`<form class="ed" id="edf"><h3>${editId!==null?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">${editId!==null?'salvar':'publicar'}</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am" aria-live="polite"></p></form><section class="ed" data-maintenance-panel></section>`;
   const editing=AV.find(a=>a.id===editId);if(editing){$('#at').value=editing.titulo;$('#ax').value=editing.texto;$('#af').checked=!!editing.fixado}
-  const maintenanceButton=$('#maintenance-toggle'),maintenanceStatus=$('#maintenance-status');
-  const readMaintenance=async()=>{try{
-    const r=await sb.from('site_settings').select('maintenance').eq('id',1).single();if(r.error)throw r.error;
-    maintenanceButton.dataset.enabled=String(!!r.data.maintenance);maintenanceButton.textContent=r.data.maintenance?'desativar manutenção':'ativar manutenção';maintenanceButton.disabled=false;
-  }catch(error){maintenanceStatus.textContent='Não foi possível carregar a manutenção. Confira a conexão e o arquivo supabase-manutencao.sql. '+(error.message||'');maintenanceButton.textContent='manutenção indisponível'}};
-  readMaintenance();
-  maintenanceButton.onclick=async()=>{
-    if(maintenanceButton.disabled||!isAdmin)return;
-    const enabled=maintenanceButton.dataset.enabled==='true',next=!enabled;if(!confirm(next?'Ativar a manutenção? Visitantes serão direcionados para a página de manutenção.':'Desativar a manutenção e abrir o site para todos?'))return;
-    maintenanceButton.disabled=true;maintenanceStatus.textContent='Salvando...';
-    try{const r=await sb.rpc('set_site_maintenance',{p_enabled:next});if(r.error)throw r.error;
-      maintenanceStatus.textContent=next?'Manutenção ativada.':'Manutenção desativada.';maintenanceButton.dataset.enabled=String(next);maintenanceButton.textContent=next?'desativar manutenção':'ativar manutenção';
-    }catch(error){maintenanceStatus.textContent='Não foi possível alterar. '+(error.message||'Tente novamente.')}
-    finally{maintenanceButton.disabled=false}
-  };
+  window.SabadouMaintenance.mountAdmin(sb,b.querySelector('[data-maintenance-panel]'));
   const form=$('#edf'),publish=$('#apub'),clear=$('#acl'),message=$('#am');
   form.onsubmit=async ev=>{ev.preventDefault();if(publish.disabled||!isAdmin||!sb)return;
     const row={titulo:$('#at').value.trim(),texto:$('#ax').value.trim(),fixado:$('#af').checked};
