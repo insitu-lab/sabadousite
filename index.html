@@ -7,26 +7,9 @@
 
 <!-- SISTEMA DE MANUTENÇÃO -->
 <script src="config.js?v=20261009-public-fixes-publicacao-20261009"></script>
-<script src="js/sabadou-maintenance.js?v=20261009-prazo-publicacao-20261009"></script>
+<script src="js/sabadou-maintenance.js?v=20261010-live-1-publicacao-20261009"></script>
 <script>
-document.documentElement.dataset.maintenanceCheck='pending';
-const revealSite=()=>delete document.documentElement.dataset.maintenanceCheck;
-const cfg=typeof SITE_CONFIG!=='undefined'?SITE_CONFIG:{};
-if(cfg.supabaseUrl&&cfg.supabaseKey){
-  (async()=>{try{
-    const base=cfg.supabaseUrl.replace(/\/$/,'');
-    const headers={apikey:cfg.supabaseKey};
-    const settings=await window.SabadouMaintenance.read();
-    if(window.SabadouMaintenance.isActive(settings)){
-      const ref=new URL(base).hostname.split('.')[0],raw=localStorage.getItem('sb-'+ref+'-auth-token');
-      const session=raw&&JSON.parse(raw),token=session?.access_token,userId=session?.user?.id;
-      let admin=false;
-      if(token&&userId){const check=await fetch(base+'/rest/v1/admins?user_id=eq.'+encodeURIComponent(userId)+'&select=user_id',{headers:{...headers,Authorization:'Bearer '+token}});admin=check.ok&&(await check.json()).length>0}
-      if(!admin){location.replace('manutencao.html?site=oficial');return}
-    }
-  }catch(e){console.warn('Não foi possível verificar o modo de manutenção.',e);location.replace('manutencao.html?site=oficial');return}
-  revealSite()})();
-}else location.replace('manutencao.html?site=oficial');
+window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 </script>
 <style>html[data-maintenance-check="pending"] body{visibility:hidden}</style>
 
@@ -204,7 +187,7 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 <link rel="stylesheet" href="css/sabadou-improvements.css?v=20261009-3-publicacao-20261009">
 <link rel="stylesheet" href="css/sabadou-auth.css?v=20261009-5-publicacao-20261009">
 </head>
-<body data-site="oficial" data-site-version="1.2.1">
+<body data-site="oficial" data-site-version="1.2.3">
 <div class="bar" id="bar"></div>
 <header class="nav"><div class="wrap nv">
   <a class="logo" href="#inicio">sabadou</a>
@@ -338,7 +321,7 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     <div><h4>parcerias</h4><p>Chama na DM do Instagram.</p><button class="cta ghost sm" id="up" type="button">Voltar ao topo</button></div>
   </div>
   <div class="wrap fb"><span>© <span id="yr">2026</span> Sabadou. Todos os direitos reservados.</span><span>Feito pra quem vive de sábado. <button class="lnk" id="adm" type="button" hidden>admin</button></span></div>
-<div class="wrap"><small class="site-version">Sabadou oficial · v1.2.1</small></div>
+<div class="wrap"><small class="site-version">Sabadou oficial · v1.2.3</small></div>
 </footer>
 
 <div id="lb"><img id="lbi" alt=""></div>
@@ -362,7 +345,7 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 <script src="js/sabadou-updates.js?v=20261009-3-publicacao-20261009"></script>
 <script src="js/sabadou-clicks.js?v=20261009-5-publicacao-20261009"></script>
 <script src="js/sabadou-fan-auth.js?v=20261009-5-publicacao-20261009"></script>
-<script src="js/sabadou-sounds.js?v=20261009-4-publicacao-20261009"></script>
+<script src="js/sabadou-sounds.js?v=20261010-2-publicacao-20261009"></script>
 <script src="js/sabadou-run.js?v=20261010-1-publicacao-20261009"></script>
 <script>
 
@@ -611,7 +594,7 @@ $('#lgf').onsubmit=async ev=>{ev.preventDefault();const m=$('#lm'),button=$('#lg
 (async()=>{
   if(CFG.supabaseUrl&&CFG.supabaseKey){
     try{await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
-      sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);$('#adm').hidden=false;
+      sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);window.SabadouMaintenance.attachClient(sb);$('#adm').hidden=false;
       sb.auth.onAuthStateChange(()=>setTimeout(()=>checkAdmin().catch(error=>console.warn('Não foi possível atualizar a sessão administrativa:',error)),0));
     }catch(e){sb=null;console.warn('Não foi possível carregar o login administrativo:',e)}
   }
