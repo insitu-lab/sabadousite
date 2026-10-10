@@ -202,13 +202,15 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 @media (max-width:700px) and (orientation:portrait){.mobhint{display:block}}
 </style>
 <link rel="stylesheet" href="css/sabadou-improvements.css?v=20261009-3-publicacao-20261009">
+<link rel="stylesheet" href="css/sabadou-auth.css?v=20261009-5-publicacao-20261009">
 </head>
-<body data-site="oficial" data-site-version="1.1.0">
+<body data-site="oficial" data-site-version="1.2.0">
 <div class="bar" id="bar"></div>
 <header class="nav"><div class="wrap nv">
   <a class="logo" href="#inicio">sabadou</a>
   <nav class="tabs" role="tablist" aria-label="Seções do site"><a role="tab" href="#inicio">início</a><a role="tab" href="#avisos">avisos<i class="dot" hidden></i></a><a role="tab" href="#musica">música</a><a role="tab" href="#galeria">galeria</a><a role="tab" href="#jogos">jogos</a><a role="tab" href="#fanarts">fanarts</a><a role="tab" href="#calabresos">calabresos</a><i class="ind"></i></nav>
   <a class="cta sm" href="https://www.instagram.com/sabadouofficiall/" target="_blank" rel="noopener">Instagram</a>
+  <button class="fan-account-button" id="hl" type="button">entrar</button>
 </div></header>
 <div class="nb" id="nb" hidden><span id="nbt"></span><a href="#avisos">ver aviso</a><button id="nbx" type="button" aria-label="Fechar aviso">×</button></div>
 
@@ -319,9 +321,9 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     <input id="mw" maxlength="18" value="sábado" aria-label="Palavra"><p style="margin-top:1.2rem;font-size:1rem;opacity:.7">No celular, segure a imagem para salvar. No computador, botão direito.</p></div>
   <div class="rv"><img id="mo" alt="Sua frase no estilo do Sabadou"></div>
 </div></section>
-<section class="sec band ckb"><div class="wrap split">
+<section class="sec band ckb" id="sabadometro"><div class="wrap split">
   <div class="rv"><button id="btn" aria-label="Sabadar"><img src="img/sabadou-classico.jpg" alt=""></button></div>
-  <div class="rv"><h2 class="big">sabadômetro</h2><p class="lead">Toque no sapo. Sem motivo. Só toca.</p><div id="cnt">0</div><div id="msg"></div></div>
+    <div class="rv"><h2 class="big">sabadômetro</h2><p class="lead">Toque no sapo. Sem motivo. Só toca.</p><div id="cnt">0</div><div id="msg"></div><p class="account-hint" id="account-status" aria-live="polite">Entre ou crie sua conta para salvar os cliques e continuar na atualização.</p><p><button class="cta sm" id="click-login" type="button">entrar para salvar cliques</button></p></div>
 </div></section>
 </section>
 </main>
@@ -336,10 +338,20 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     <div><h4>parcerias</h4><p>Chama na DM do Instagram.</p><button class="cta ghost sm" id="up" type="button">Voltar ao topo</button></div>
   </div>
   <div class="wrap fb"><span>© <span id="yr">2026</span> Sabadou. Todos os direitos reservados.</span><span>Feito pra quem vive de sábado. <button class="lnk" id="adm" type="button" hidden>admin</button></span></div>
-<div class="wrap"><small class="site-version">Sabadou oficial · v1.1.1</small></div>
+<div class="wrap"><small class="site-version">Sabadou oficial · v1.2.0</small></div>
 </footer>
 
 <div id="lb"><img id="lbi" alt=""></div>
+
+<dialog id="ul"><form id="ulf"><h3 id="ut">entrar</h3>
+  <input class="fld" id="uh" placeholder="nome do Instagram (sem @)" autocomplete="username" required maxlength="30">
+  <input class="fld" id="upw" type="password" placeholder="senha" autocomplete="current-password" required maxlength="72">
+  <p class="hint" id="um" aria-live="polite">Use a mesma conta nos dois sites para continuar com seus cliques.</p>
+  <p class="account-hint">Os cliques antigos deste navegador serão vinculados à primeira conta de fã que entrar aqui. Use sua própria conta.</p>
+  <button class="cta sm" id="usubmit" type="submit">entrar</button>
+  <button class="cta ghost sm" id="uswitch" type="button">criar conta</button>
+  <button class="cta ghost sm" type="button" onclick="document.getElementById('ul').close()">fechar</button>
+</form></dialog>
 
 <dialog id="lg"><form id="lgf"><h3 style="font:400 1.8rem var(--disp);margin:0">entrar (admin)</h3>
   <input class="fld" id="le" type="email" placeholder="E-mail" autocomplete="username" required>
@@ -348,7 +360,8 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <div class="edb"><button class="cta" type="submit">entrar</button><button class="cta ghost" type="button" id="lc">cancelar</button></div></form></dialog>
 
 <script src="js/sabadou-updates.js?v=20261009-3-publicacao-20261009"></script>
-<script src="js/sabadou-clicks.js?v=20261009-4-publicacao-20261009"></script>
+<script src="js/sabadou-clicks.js?v=20261009-5-publicacao-20261009"></script>
+<script src="js/sabadou-fan-auth.js?v=20261009-5-publicacao-20261009"></script>
 <script src="js/sabadou-sounds.js?v=20261009-4-publicacao-20261009"></script>
 <script src="js/sabadou-run.js?v=20261009-3-publicacao-20261009"></script>
 <script>
@@ -392,9 +405,36 @@ tick();setInterval(tick,1000);
 addEventListener('scroll',()=>{$('#bar').style.width=scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)*100+'%'},{passive:true});
 
 // sabadômetro
-let N=store.get('sab_n',0);const M={10:'tá esquentando…',30:'já é quase sábado',67:'67!!! 💜💜💜',100:'cem sabadadas. respeito.',200:'você é um calabreso de verdade'};
+let N=store.get('sab_legacy_owner',null)?0:store.get('sab_n',0),oldGameProfile='',oldClickSession=null;
+const M={10:'tá esquentando…',30:'já é quase sábado',67:'67!!! 💜💜💜',100:'cem sabadadas. respeito.',200:'você é um calabreso de verdade'};
 $('#cnt').textContent=N;
-$('#btn').onclick=e=>{if(!window.SabadouClicks.acceptTap())return;N++;store.set('sab_n',N);$('#cnt').textContent=N;window.SabadouSounds?.play('frog');if(M[N])$('#msg').textContent=M[N];
+function selectOldGameProfile(){
+  const profile=me?(isAdmin?'_admin_':'_user_')+me.id:'_guest';
+  if(profile===oldGameProfile)return;
+  oldClickSession?.close();oldClickSession=null;oldGameProfile=profile;$('#msg').textContent='';
+  const owner=store.get('sab_legacy_owner',null),useLegacy=me&&!isAdmin&&(!owner||owner===me.id);
+  N=me?store.get('sab_n'+profile,useLegacy?store.get('sab_n',0):0):(!owner?store.get('sab_n',0):0);
+  $('#cnt').textContent=N;
+  if(!me){$('#account-status').textContent='Entre ou crie sua conta para salvar os cliques e continuar na atualização.';return}
+  if(isAdmin){$('#account-status').textContent='Conta administrativa de teste · fora do ranking.';return}
+  const userId=me.id,cached=store.get('sab_g'+profile,null),legacy=cached||(useLegacy?store.get('sab_g',null):null);
+  const backupKey='sab_before_server_'+userId;
+  if(!store.get(backupKey,null))store.set(backupKey,{clicks:N,game:legacy});
+  $('#account-status').textContent='Conectando ao seu placar…';
+  oldClickSession=window.SabadouClicks.connect({client:sb,userId,legacy,
+    onState:data=>{if(oldGameProfile!==profile||me?.id!==userId||isAdmin)return;
+      N=data.clicks;store.set('sab_n'+profile,N);store.set('sab_g'+profile,{coin:data.coin,lv:data.lv});$('#cnt').textContent=N;
+      $('#account-status').textContent=data.migration?.state==='revisao'?'Seu saldo antigo está guardado e aguarda conferência do admin. Os novos cliques continuam salvos.':'Cliques salvos na sua conta · continuam na atualização.'},
+    onMessage:text=>{if(oldGameProfile===profile&&me?.id===userId&&text)$('#account-status').textContent=text}
+  });
+}
+$('#btn').onclick=async e=>{
+  if(!me){fanAuth.open();return}
+  if(!window.SabadouClicks.acceptTap())return;
+  const userId=me.id;
+  if(isAdmin){N++;store.set('sab_n'+oldGameProfile,N);$('#cnt').textContent=N}
+  else if(!oldClickSession||!await oldClickSession.tap()||me?.id!==userId)return;
+  window.SabadouSounds?.play('frog');if(M[N])$('#msg').textContent=M[N];
   const r=e.clientX?[e.clientX,e.clientY]:[$('#btn').getBoundingClientRect().left+100,$('#btn').getBoundingClientRect().top+60];
   spawn(r[0],r[1],N===67?30:3)};
 $('#up').onclick=()=>scrollTo({top:0,behavior:still?'auto':'smooth'});
@@ -470,7 +510,14 @@ const CFG=(typeof SITE_CONFIG!=='undefined'?SITE_CONFIG:window.SITE_CONFIG)||{},
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtD=d=>{try{return new Date(/^\d{4}-\d\d-\d\d$/.test(d)?d+'T12:00:00':d).toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}catch(e){return''}};
 const PIN='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M14 3l7 7-3 1-3.5 3.5.5 4.5-1.5 1.5-4-4-5 5-1-1 5-5-4-4L6 14.500 10.500 14 14 10.500z"/></svg>';
-let sb=null,isAdmin=false,AV=[],editId=null,adminUserId=null,adminChecks=Promise.resolve();
+let sb=null,me=null,isAdmin=false,AV=[],editId=null,adminUserId=null,adminChecks=Promise.resolve();
+const fanAuth=window.SabadouFanAuth.mount({getClient:()=>sb,onSignedIn:()=>checkAdmin()});
+$('#click-login').onclick=()=>fanAuth.open();
+$('#hl').onclick=async()=>{
+  if(!me){fanAuth.open();return}
+  try{const result=await sb.auth.signOut({scope:'local'});if(result.error)throw result.error;await checkAdmin()}
+  catch(error){$('#account-status').textContent='Não foi possível sair agora. Tente novamente.'}
+};
 async function loadAv(){
   try{
     if(sb){const r=await sb.from('avisos').select('*').order('fixado',{ascending:false}).order('criado_em',{ascending:false});if(r.error)throw r.error;AV=r.data}
@@ -506,6 +553,7 @@ function renderAdm(){
   const editing=AV.find(a=>a.id===editId);if(editing){$('#at').value=editing.titulo;$('#ax').value=editing.texto;$('#af').checked=!!editing.fixado}
   window.SabadouMaintenance.mountAdmin(sb,b.querySelector('[data-maintenance-panel]'));
   window.SabadouUpdates.mountAdmin(sb,b);
+  window.SabadouClicks.mountMigrations(sb,b);
   const form=$('#edf'),publish=$('#apub'),clear=$('#acl'),message=$('#am');
   form.onsubmit=async ev=>{ev.preventDefault();if(publish.disabled||!isAdmin||!sb)return;
     const row={titulo:$('#at').value.trim(),texto:$('#ax').value.trim(),fixado:$('#af').checked};
@@ -523,9 +571,14 @@ function renderAdm(){
     finally{button.disabled=false}
   };
 }
-function applyAdmin(userId,allowed){
+function applyAdmin(user,allowed){
+  const userId=user?.id||null;
   const changed=adminUserId!==userId||isAdmin!==allowed;
-  adminUserId=userId;isAdmin=allowed;
+  me=user;adminUserId=userId;isAdmin=allowed;
+  selectOldGameProfile();
+  $('#hl').textContent=me?(isAdmin?'admin (teste)':'@'+(me.user_metadata?.handle||'fã')):'entrar';
+  $('#hl').title=me?'Sair da conta':'Entrar ou criar conta';
+  $('#click-login').hidden=!!me;
   if(changed){editId=null;renderAdm()}
   renderAv();
 }
@@ -534,9 +587,9 @@ function checkAdmin(){
     if(!sb){applyAdmin(null,false);return false}
     try{
       const s=await sb.auth.getSession();if(s.error)throw s.error;
-      const userId=s.data.session?.user?.id||null;let allowed=false;
+      const user=s.data.session?.user||null,userId=user?.id||null;let allowed=false;
       if(userId){const r=await sb.from('admins').select('user_id').eq('user_id',userId).maybeSingle();if(r.error)throw r.error;allowed=r.data?.user_id===userId}
-      applyAdmin(userId,allowed);return allowed;
+      applyAdmin(user,allowed);return allowed;
     }catch(error){applyAdmin(null,false);throw error}
   });
   adminChecks=task;return task;
