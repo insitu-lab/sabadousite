@@ -336,7 +336,7 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     <div><h4>parcerias</h4><p>Chama na DM do Instagram.</p><button class="cta ghost sm" id="up" type="button">Voltar ao topo</button></div>
   </div>
   <div class="wrap fb"><span>© <span id="yr">2026</span> Sabadou. Todos os direitos reservados.</span><span>Feito pra quem vive de sábado. <button class="lnk" id="adm" type="button" hidden>admin</button></span></div>
-<div class="wrap"><small class="site-version">Sabadou oficial · v1.1.0</small></div>
+<div class="wrap"><small class="site-version">Sabadou oficial · v1.1.1</small></div>
 </footer>
 
 <div id="lb"><img id="lbi" alt=""></div>
@@ -348,7 +348,8 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <div class="edb"><button class="cta" type="submit">entrar</button><button class="cta ghost" type="button" id="lc">cancelar</button></div></form></dialog>
 
 <script src="js/sabadou-updates.js?v=20261009-3-publicacao-20261009"></script>
-<script src="js/sabadou-sounds.js?v=20261009-3-publicacao-20261009"></script>
+<script src="js/sabadou-clicks.js?v=20261009-4-publicacao-20261009"></script>
+<script src="js/sabadou-sounds.js?v=20261009-4-publicacao-20261009"></script>
 <script src="js/sabadou-run.js?v=20261009-3-publicacao-20261009"></script>
 <script>
 
@@ -393,7 +394,7 @@ addEventListener('scroll',()=>{$('#bar').style.width=scrollY/Math.max(1,document
 // sabadômetro
 let N=store.get('sab_n',0);const M={10:'tá esquentando…',30:'já é quase sábado',67:'67!!! 💜💜💜',100:'cem sabadadas. respeito.',200:'você é um calabreso de verdade'};
 $('#cnt').textContent=N;
-$('#btn').onclick=e=>{N++;store.set('sab_n',N);$('#cnt').textContent=N;if(M[N])$('#msg').textContent=M[N];
+$('#btn').onclick=e=>{if(!window.SabadouClicks.acceptTap())return;N++;store.set('sab_n',N);$('#cnt').textContent=N;window.SabadouSounds?.play('frog');if(M[N])$('#msg').textContent=M[N];
   const r=e.clientX?[e.clientX,e.clientY]:[$('#btn').getBoundingClientRect().left+100,$('#btn').getBoundingClientRect().top+60];
   spawn(r[0],r[1],N===67?30:3)};
 $('#up').onclick=()=>scrollTo({top:0,behavior:still?'auto':'smooth'});
