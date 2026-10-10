@@ -6,14 +6,15 @@
 <meta name="robots" content="noindex">
 <title>Sabadou — voltamos já</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
-<script src="config.js?v=20261009-18h"></script>
-<script src="js/sabadou-maintenance.js?v=20261009-prazo"></script>
+<script src="js/sabadou-site-links.js?v=20261009-comum-publicacao-20261009"></script>
+<script src="config.js?v=20261009-18h-publicacao-20261009"></script>
+<script src="js/sabadou-maintenance.js?v=20261009-prazo-publicacao-20261009"></script>
 <script>
 document.documentElement.dataset.maintenanceCheck='pending';
 const revealMaintenance=()=>delete document.documentElement.dataset.maintenanceCheck;
 (async()=>{try{
   const settings=await window.SabadouMaintenance.read();
-  if(!window.SabadouMaintenance.isActive(settings)){location.replace('index.html');return}
+  if(!window.SabadouMaintenance.isActive(settings)){location.replace(window.SabadouSiteLinks.home);return}
 }catch(e){console.warn('Não foi possível verificar o modo de manutenção.',e)}revealMaintenance()})();
 </script>
 <style>html[data-maintenance-check="pending"] body{visibility:hidden}</style>
@@ -307,7 +308,7 @@ $('#admin-login-form').onsubmit=async e=>{
     if(login.error)throw new Error('E-mail ou senha incorretos.');
     const check=await client.from('admins').select('user_id').eq('user_id',login.data.user.id).maybeSingle();
     if(check.error||!check.data){await client.auth.signOut();throw new Error('Essa conta não tem acesso de administrador.');}
-    status.textContent='Acesso confirmado.';location.replace('index.html');
+    status.textContent='Acesso confirmado.';location.replace(window.SabadouSiteLinks.home);
   }catch(error){status.textContent=error.message||'Não foi possível entrar.';button.disabled=false}
 };
 
@@ -353,7 +354,7 @@ function volta(){
 }
 function updateReturn(){
   const settings=window.SabadouMaintenance.state;
-  if(settings&&!window.SabadouMaintenance.isActive(settings)){location.replace('index.html');return}
+  if(settings&&!window.SabadouMaintenance.isActive(settings)){location.replace(window.SabadouSiteLinks.home);return}
   volta();
 }
 window.addEventListener('sabadou:maintenance',updateReturn);

@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#12061f">
 
 <!-- SISTEMA DE MANUTENÇÃO -->
-<script src="config.js?v=20261009-public-fixes"></script>
-<script src="js/sabadou-maintenance.js?v=20261009-prazo"></script>
+<script src="config.js?v=20261009-public-fixes-publicacao-20261009"></script>
+<script src="js/sabadou-maintenance.js?v=20261009-prazo-publicacao-20261009"></script>
 <script>
 document.documentElement.dataset.maintenanceCheck='pending';
 const revealSite=()=>delete document.documentElement.dataset.maintenanceCheck;
@@ -22,11 +22,11 @@ if(cfg.supabaseUrl&&cfg.supabaseKey){
       const session=raw&&JSON.parse(raw),token=session?.access_token,userId=session?.user?.id;
       let admin=false;
       if(token&&userId){const check=await fetch(base+'/rest/v1/admins?user_id=eq.'+encodeURIComponent(userId)+'&select=user_id',{headers:{...headers,Authorization:'Bearer '+token}});admin=check.ok&&(await check.json()).length>0}
-      if(!admin){location.replace('manutencao.html');return}
+      if(!admin){location.replace('manutencao.html?site=oficial');return}
     }
-  }catch(e){console.warn('Não foi possível verificar o modo de manutenção.',e);location.replace('manutencao.html');return}
+  }catch(e){console.warn('Não foi possível verificar o modo de manutenção.',e);location.replace('manutencao.html?site=oficial');return}
   revealSite()})();
-}else location.replace('manutencao.html');
+}else location.replace('manutencao.html?site=oficial');
 </script>
 <style>html[data-maintenance-check="pending"] body{visibility:hidden}</style>
 
@@ -201,8 +201,9 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 }
 @media (max-width:700px) and (orientation:portrait){.mobhint{display:block}}
 </style>
+<link rel="stylesheet" href="css/sabadou-improvements.css?v=20261009-3-publicacao-20261009">
 </head>
-<body>
+<body data-site="oficial" data-site-version="1.1.0">
 <div class="bar" id="bar"></div>
 <header class="nav"><div class="wrap nv">
   <a class="logo" href="#inicio">sabadou</a>
@@ -331,10 +332,11 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <div class="wrap fg">
     <div><div class="logo" style="color:#f6ecff">sabadou</div><p class="tg">é sábado, meus calabresos.</p><a class="cta ghost sm" href="https://www.instagram.com/sabadouofficiall/" target="_blank" rel="noopener">Instagram</a></div>
     <nav aria-label="Navegar"><h4>navegar</h4><a href="#inicio">início</a><a href="#avisos">avisos</a><a href="#musica">música</a><a href="#galeria">galeria</a><a href="#jogos">jogos</a><a href="#fanarts">fanarts</a><a href="#calabresos">calabresos</a></nav>
-    <nav aria-label="Legal"><h4>legal</h4><a href="termos.html">termos de uso</a><a href="privacy.html">política de privacidade</a><a href="termos.html#direitos">direitos autorais</a><a href="termos.html#fanarts">regras das fanarts</a></nav>
+    <nav aria-label="Legal"><h4>legal</h4><a href="termos.html?site=oficial">termos de uso</a><a href="privacy.html?site=oficial">política de privacidade</a><a href="termos.html?site=oficial#direitos">direitos autorais</a><a href="termos.html?site=oficial#fanarts">regras das fanarts</a></nav>
     <div><h4>parcerias</h4><p>Chama na DM do Instagram.</p><button class="cta ghost sm" id="up" type="button">Voltar ao topo</button></div>
   </div>
   <div class="wrap fb"><span>© <span id="yr">2026</span> Sabadou. Todos os direitos reservados.</span><span>Feito pra quem vive de sábado. <button class="lnk" id="adm" type="button" hidden>admin</button></span></div>
+<div class="wrap"><small class="site-version">Sabadou oficial · v1.1.0</small></div>
 </footer>
 
 <div id="lb"><img id="lbi" alt=""></div>
@@ -345,8 +347,9 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <p class="mut" id="lm" style="margin:0;min-height:1.4em"></p>
   <div class="edb"><button class="cta" type="submit">entrar</button><button class="cta ghost" type="button" id="lc">cancelar</button></div></form></dialog>
 
-<script src="js/sabadou-sounds.js?v=20261009-public-fixes"></script>
-<script src="js/sabadou-run.js?v=20261009-public-fixes"></script>
+<script src="js/sabadou-updates.js?v=20261009-3-publicacao-20261009"></script>
+<script src="js/sabadou-sounds.js?v=20261009-3-publicacao-20261009"></script>
+<script src="js/sabadou-run.js?v=20261009-3-publicacao-20261009"></script>
 <script>
 
 const PLAY='<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
@@ -445,7 +448,7 @@ function go(id,anchor){const i=TABS.indexOf(id);if(i<0)return;const left=i<cur;
   tabLinks.forEach(a=>{const on=a.getAttribute('href')==='#'+id;a.classList.toggle('on',on);a.setAttribute('aria-selected',on);if(on)a.scrollIntoView({inline:'center',block:'nearest'})});
   cur=i;moveInd();mini.classList.toggle('hide',id==='musica'||id==='jogos');
   const e=anchor&&document.getElementById(anchor);if(e)e.scrollIntoView({behavior:still?'auto':'smooth'});else scrollTo(0,0)}
-function route(){const h=decodeURIComponent(location.hash.slice(1))||'inicio';if(TABS.includes(h))return go(h);
+function route(){let h;try{h=decodeURIComponent(location.hash.slice(1))||'inicio'}catch{h='inicio'};if(TABS.includes(h))return go(h);
   const e=document.getElementById(h),p=e&&e.closest('.panel');p?go(p.id,h):go('inicio')}
 addEventListener('hashchange',route);addEventListener('resize',moveInd);route();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(moveInd);
@@ -501,6 +504,7 @@ function renderAdm(){
   b.innerHTML=`<form class="ed" id="edf"><h3>${editId!==null?'editar aviso':'novo aviso'}<button type="button" id="aout" class="lnk">sair</button></h3><input class="fld" id="at" placeholder="Título" maxlength="120" required><textarea class="fld" id="ax" placeholder="Texto do aviso" maxlength="2000" required></textarea><label class="chk"><input type="checkbox" id="af"> fixar (vira faixa no site todo)</label><div class="edb"><button class="cta" id="apub" type="submit">${editId!==null?'salvar':'publicar'}</button><button class="cta ghost" type="button" id="acl">limpar</button></div><p class="mut" id="am" aria-live="polite"></p></form><section class="ed" data-maintenance-panel></section>`;
   const editing=AV.find(a=>a.id===editId);if(editing){$('#at').value=editing.titulo;$('#ax').value=editing.texto;$('#af').checked=!!editing.fixado}
   window.SabadouMaintenance.mountAdmin(sb,b.querySelector('[data-maintenance-panel]'));
+  window.SabadouUpdates.mountAdmin(sb,b);
   const form=$('#edf'),publish=$('#apub'),clear=$('#acl'),message=$('#am');
   form.onsubmit=async ev=>{ev.preventDefault();if(publish.disabled||!isAdmin||!sb)return;
     const row={titulo:$('#at').value.trim(),texto:$('#ax').value.trim(),fixado:$('#af').checked};
