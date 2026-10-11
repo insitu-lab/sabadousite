@@ -36,7 +36,7 @@
         if(!ready||(migration?.state==='revisao'&&performance.now()-migrationCheck>=30000)){
           migration=await migrateLegacy(client,userId);migrationCheck=performance.now();if(disposed)return false;
         }
-        const args={p_acao:name,p_item:item,p_pedido:name==='sync'?null:requestId(),p_economia:'20261011-hour-1'};
+        const args={p_acao:name,p_item:item,p_pedido:name==='sync'?null:requestId(),p_economia:'20261011-threehours-1'};
         if(!ready&&legacy){args.p_niveis=legacy.lv;args.p_moedas=legacy.coin}
         const {data,error}=await client.rpc(actionRpc,args);
         if(disposed)return false;
