@@ -17,17 +17,18 @@
     gain.gain.exponentialRampToValueAtTime(.0001,now+start+duration);
     osc.connect(gain);gain.connect(a.destination);osc.start(now+start);osc.stop(now+start+duration+.02);
   }
-  const clipFiles={click:'universfield-menu-click-147357.mp3',tab:'click_002.wav',frog:'click-sabadometro.mp3',typing:'digitando.mp3'};
+  const clipFiles={click:'universfield-menu-click-147357.mp3',tab:'click_002.wav',frog:'click-sabadometro.mp3',buy:'compra.mp3',typing:'digitando.mp3'};
   const soundBase=new URL('assets/sfx/',document.baseURI),reported=new Set();
+  const clipUrl=name=>new URL(clipFiles[name],soundBase);
   function report(name,error){
     if(reported.has(name))return;
     reported.add(name);
-    console.warn('Não foi possível tocar o efeito sonoro:',new URL(clipFiles[name],soundBase).href,error);
+    console.warn('Não foi possível tocar o efeito sonoro:',clipUrl(name).href,error);
   }
-  // Reutilizar os áudios pré-carregados mantém os cliques rápidos do sapo responsivos.
+  // Reutilizar os áudios pré-carregados mantém os cliques rápidos do bacano responsivos.
   const clips=Object.fromEntries(Object.entries(clipFiles).map(([name,file])=>[name,
     Array.from({length:4},()=>{
-      const sound=new Audio(new URL(file,soundBase).href);
+      const sound=new Audio(clipUrl(name).href);
       sound.preload='auto';sound.volume=.38;
       sound.addEventListener('error',()=>report(name,sound.error));
       sound.load();return sound;
@@ -44,6 +45,7 @@
     click(){playClip('click')},
     tab(){playClip('tab')},
     frog(){playClip('frog')},
+    buy(){playClip('buy')},
     typing(){playClip('typing')},
     jump(){tone(300,0,.11,'square',.045,560)},
     lose(){tone(300,0,.18,'triangle',.055,220);tone(220,.15,.3,'sawtooth',.035,95)},
@@ -55,7 +57,7 @@
   function buttonSound(e){
     const el=e.target.closest('button,a.cta,.tabs a[role="tab"],[role="button"]');
     if(!el||el.disabled)return;
-    if(el.id==='btn')return;
+    if(el.id==='btn'||el.closest('#shl'))return;
     else if(el.matches('.tabs a[role="tab"]'))sounds.tab();
     else sounds.click();
   }
