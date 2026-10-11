@@ -2,21 +2,21 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<link rel="icon" type="image/png" href="img/sabadou-favicon.png?v=20261010-1-publicacao-20261010-release">
+<link rel="icon" type="image/png" href="img/sabadou-favicon.png?v=build-20261011032654-00d119d8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#12061f">
 <title>Sabadou — avisos em vídeo</title>
-<script src="config.js"></script>
-<script src="js/sabadou-maintenance.js?v=20261010-live-1-publicacao-20261010-release"></script>
+<script src="config.js?v=build-20261011032654-00d119d8"></script>
+<script src="js/sabadou-maintenance.js?v=build-20261011032654-00d119d8"></script>
 <script>
 window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 window.SabadouMaintenance.connectRealtime().catch(error=>console.warn('Realtime indisponível; manutenção conferida periodicamente.',error));
 </script>
 <style>html[data-maintenance-check="pending"] body{visibility:hidden}</style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="css/avisos-videos.css?v=20261009-1-publicacao-20261010-release">
-<script src="js/avisos-videos.js?v=20261009-pastas-publicacao-20261010-release" defer></script>
-<link rel="stylesheet" href="css/sabadou-improvements.css?v=20261009-3-publicacao-20261010-release">
+<link rel="stylesheet" href="css/avisos-videos.css?v=build-20261011032654-00d119d8">
+<script src="js/avisos-videos.js?v=build-20261011032654-00d119d8" defer></script>
+<link rel="stylesheet" href="css/sabadou-improvements.css?v=build-20261011032654-00d119d8">
 </head>
 <body data-site="oficial" data-site-version="2.3.0">
 <header class="nav"><div class="wrap nv">
@@ -29,12 +29,51 @@ window.SabadouMaintenance.connectRealtime().catch(error=>console.warn('Realtime 
     <h1>avisos em vídeo</h1>
     <p>As novidades do bacano, agora em movimento. Escolhe um vídeo e dá o play, calabreso.</p>
   </div>
-  <article class="video-feature" aria-labelledby="video-title">
+  <nav class="video-index" aria-label="Escolher aviso em vídeo"><a class="cta sm" href="#turbo">Turbo de Fim de Semana</a><a class="cta ghost sm" href="#fanarts-video">fanarts</a></nav>
+  <article class="video-feature" id="turbo" aria-labelledby="turbo-title">
+    <div class="video-player">
+      <div class="player-label"><span class="dot" aria-hidden="true"></span> novo aviso <span>56 segundos</span></div>
+      <div class="video-frame">
+        <video id="turbo-video" controls playsinline preload="metadata" poster="assets/videos/turbo-poster.jpg?v=build-20261011032654-00d119d8" aria-label="Aviso em vídeo: Turbo de Fim de Semana do Sabadômetro">
+          <source src="assets/videos/sabadou-turbo-fim-de-semana-1080x1920.mp4?v=build-20261011032654-00d119d8" type="video/mp4">
+          Seu navegador não conseguiu abrir o vídeo. Você pode baixar o arquivo pelo botão ao lado.
+        </video>
+      </div>
+      <p class="video-error" role="status" hidden>Não consegui carregar o vídeo agora. Tente novamente ou baixe o arquivo abaixo.</p>
+    </div>
+    <div class="video-info">
+      <span class="category">sabadômetro</span>
+      <h2 id="turbo-title">Turbo de<br>Fim de Semana</h2>
+      <p class="lead">Seu fim de semana ficou 90 vezes mais bacano!</p>
+      <p>Alcance 1 milhão de cliques para desbloquear o turbo: novos cliques, ganhos automáticos e moedas rendem 90× aos sábados e domingos, no horário de Brasília.</p>
+      <p>O limite continua sendo de dois toques por segundo. Na segunda, à meia-noite, os ganhos voltam ao normal e tudo o que você conquistou fica salvo.</p>
+      <div class="video-actions">
+        <button class="cta" data-watch-video type="button"><span aria-hidden="true">▶</span> assistir ao aviso</button>
+        <a class="cta ghost" href="assets/videos/sabadou-turbo-fim-de-semana-1080x1920.mp4?v=build-20261011032654-00d119d8" download="sabadou-turbo-fim-de-semana.mp4"><span aria-hidden="true">↓</span> baixar vídeo</a>
+      </div>
+      <a class="fanart-link" data-game href="index.html#sabadometro">ir para o Sabadômetro <span aria-hidden="true">→</span></a>
+      <details class="transcript">
+        <summary>ler o aviso <span aria-hidden="true">⌄</span></summary>
+        <div>
+          <p>Calabresos, uma novidade acaba de chegar ao Sabadômetro!</p>
+          <p>Apresentamos o Turbo de Fim de Semana!</p>
+          <p>Agora, quem alcançar 1 milhão de cliques vai desbloquear um benefício especial!</p>
+          <p>Todos os sábados e domingos, seus novos cliques, ganhos automáticos e moedas vão render 90 VEZES MAIS!</p>
+          <p>E o melhor: tudo acontece automaticamente, sem precisar ativar nada!</p>
+          <p>Na segunda-feira, à meia-noite, o turbo é desligado e os ganhos voltam ao normal. Mas calma! Você não perde nada do que já conquistou!</p>
+          <p>Lembrando que o limite continua sendo de dois toques por segundo, e o turbo não multiplica seu saldo acumulado.</p>
+          <p>E pode comemorar, porque o turbo volta todo fim de semana, enquanto você tiver pelo menos um milhão de cliques!</p>
+          <p>Então corre pro Sabadômetro, porque agora o fim de semana ficou 90 vezes mais bacano!</p>
+        </div>
+      </details>
+    </div>
+  </article>
+  <article class="video-feature" id="fanarts-video" aria-labelledby="video-title">
     <div class="video-player">
       <div class="player-label"><span class="dot" aria-hidden="true"></span> novidade <span>1 min 19 s</span></div>
       <div class="video-frame">
-        <video id="notice-video" controls playsinline preload="metadata" poster="assets/videos/fanarts-poster.jpg?v=20261009-fanart-publicacao-20261010-release" aria-label="Aviso em vídeo: como enviar fanarts do Sabadou">
-          <source src="assets/videos/sabadou-fanarts-exemplo-1080x1920.mp4?v=20261009-fanart-publicacao-20261010-release" type="video/mp4">
+        <video id="notice-video" controls playsinline preload="metadata" poster="assets/videos/fanarts-poster.jpg?v=build-20261011032654-00d119d8" aria-label="Aviso em vídeo: como enviar fanarts do Sabadou">
+          <source src="assets/videos/sabadou-fanarts-exemplo-1080x1920.mp4?v=build-20261011032654-00d119d8" type="video/mp4">
           Seu navegador não conseguiu abrir o vídeo. Você pode baixar o arquivo pelo botão ao lado.
         </video>
       </div>
@@ -47,7 +86,7 @@ window.SabadouMaintenance.connectRealtime().catch(error=>console.warn('Realtime 
       <p>Veja como escolher seu desenho, acompanhar a análise, receber o resultado e participar do mural dos calabresos.</p>
       <div class="video-actions">
         <button class="cta" id="watch-video" type="button"><span aria-hidden="true">▶</span> assistir ao aviso</button>
-        <a class="cta ghost" href="assets/videos/sabadou-fanarts-exemplo-1080x1920.mp4?v=20261009-fanart-publicacao-20261010-release" download="sabadou-fanarts.mp4"><span aria-hidden="true">↓</span> baixar vídeo</a>
+        <a class="cta ghost" href="assets/videos/sabadou-fanarts-exemplo-1080x1920.mp4?v=build-20261011032654-00d119d8" download="sabadou-fanarts.mp4"><span aria-hidden="true">↓</span> baixar vídeo</a>
       </div>
       <a class="fanart-link" data-fanarts href="index.html#fanarts">ir para as fanarts <span aria-hidden="true">→</span></a>
       <details class="transcript">
@@ -75,7 +114,7 @@ window.SabadouMaintenance.connectRealtime().catch(error=>console.warn('Realtime 
 </main>
 <footer><div class="wrap footer-inner"><span class="logo">sabadou</span><span>é sábado, meus calabresos.</span><a class="cta ghost sm" href="https://www.instagram.com/sabadouofficiall/" target="_blank" rel="noopener">Instagram</a></div><div class="wrap"><small class="site-version">Sabadou oficial · v2.3.0</small></div>
 </footer>
-<script src="js/sabadou-sounds.js?v=20261010-shared-publicacao-20261010-release"></script>
-<script src="js/sabadou-updates.js?v=20261009-3-publicacao-20261010-release"></script>
+<script src="js/sabadou-sounds.js?v=build-20261011032654-00d119d8"></script>
+<script src="js/sabadou-updates.js?v=build-20261011032654-00d119d8"></script>
 </body>
 </html>
