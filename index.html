@@ -2,15 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<link rel="icon" type="image/png" href="img/sabadou-favicon.png?v=build-20261011032654-00d119d8">
+<link rel="icon" type="image/png" href="img/sabadou-favicon.png?v=build-20261011033323-73a504b5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#12061f">
-<meta name="sabadou-build" content="build-20261011032654-00d119d8">
-<script defer src="js/sabadou-release.js?v=build-20261011032654-00d119d8"></script>
+<meta name="sabadou-build" content="build-20261011033323-73a504b5">
+<script defer src="js/sabadou-release.js?v=build-20261011033323-73a504b5"></script>
 
 <!-- SISTEMA DE MANUTENÇÃO -->
-<script src="config.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-maintenance.js?v=build-20261011032654-00d119d8"></script>
+<script src="config.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-maintenance.js?v=build-20261011033323-73a504b5"></script>
 <script>
 window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 </script>
@@ -94,8 +94,8 @@ h1,h2,h3{font-family:var(--disp);font-weight:400;margin:0;line-height:1}
 #mw{font:inherit;font-weight:800;font-size:1.4rem;padding:1rem 1.6rem;border-radius:99px;border:2px solid var(--pur);background:var(--card);color:var(--ink);width:min(100%,380px)}
 #mo{display:block;width:min(100%,520px);margin:0 auto;aspect-ratio:1;border-radius:32px;border:3px solid var(--pur);background:var(--card);box-shadow:0 30px 80px rgba(166,77,255,.4)}
 .ckb{background:#1a0833}
-#btn{display:block;margin:0 auto;width:min(68vw,320px);aspect-ratio:1;border-radius:50%;border:8px solid var(--lil);padding:0;overflow:hidden;cursor:pointer;background:#000;animation:ring 2s infinite;transition:transform .1s;touch-action:manipulation}
-#btn img{width:100%;height:100%;object-fit:cover;object-position:58% 60%;transform:scale(2.1);transform-origin:58% 60%;display:block;pointer-events:none}
+#btn{display:block;margin:0 auto;width:min(68vw,320px);aspect-ratio:1;border-radius:50%;border:8px solid var(--lil);padding:0;overflow:hidden;cursor:pointer;background:#12061f;animation:ring 2s infinite;transition:transform .1s;touch-action:manipulation}
+#btn img{width:100%;height:100%;object-fit:contain;object-position:center;padding:8%;display:block;pointer-events:none}
 #btn:active{transform:scale(.9) rotate(-3deg)}
 @keyframes ring{0%{box-shadow:0 0 0 0 rgba(242,184,255,.6)}100%{box-shadow:0 0 0 50px rgba(242,184,255,0)}}
 #cnt{font:400 clamp(4rem,10vw,8rem)/1 var(--disp);margin:1rem 0 .4rem}#msg{min-height:2em;opacity:.85}
@@ -248,10 +248,10 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 @media (max-width:860px){.hl{padding:.4rem .85rem;font-size:.9rem}.nv{gap:.5rem}.si{flex-direction:column;align-items:stretch}.si button{width:100%;padding:.7rem}.fg{grid-template-columns:1fr 1fr;gap:.6rem}#btn{touch-action:manipulation}}
 @media (max-width:700px){body{padding-bottom:calc(62px + env(safe-area-inset-bottom,0px))}.nav{backdrop-filter:none}.nv nav.tabs{position:fixed;top:auto;left:0;right:0;bottom:0;z-index:35;height:calc(58px + env(safe-area-inset-bottom,0px));padding:4px 8px env(safe-area-inset-bottom,0px);justify-content:flex-start;gap:.2rem;background:var(--nav);backdrop-filter:blur(14px);border-top:1px solid var(--line);border-bottom:0}.nv nav.tabs a{display:flex;align-items:center;min-height:44px;padding:.3rem .65rem;font-size:.82rem}.nv nav.tabs .ind{display:none}.podium{gap:.35rem}.podium-entry{gap:.3rem}.podium-photo{width:clamp(62px,18vw,96px);border-radius:16px}.podium-tools .mini,.podium-tools .download{font-size:.7rem;padding:.14rem .35rem}.podium-votes{font-size:.75rem}.podium-base strong{font-size:2rem}}
 </style>
-<link rel="stylesheet" href="css/sabadou-improvements.css?v=build-20261011032654-00d119d8">
-<link rel="stylesheet" href="css/sabadou-auth.css?v=build-20261011032654-00d119d8">
-<link rel="stylesheet" href="css/sabadou-podium.css?v=build-20261011032654-00d119d8">
-<link rel="stylesheet" href="css/sabadou-admin.css?v=build-20261011032654-00d119d8">
+<link rel="stylesheet" href="css/sabadou-improvements.css?v=build-20261011033323-73a504b5">
+<link rel="stylesheet" href="css/sabadou-auth.css?v=build-20261011033323-73a504b5">
+<link rel="stylesheet" href="css/sabadou-podium.css?v=build-20261011033323-73a504b5">
+<link rel="stylesheet" href="css/sabadou-admin.css?v=build-20261011033323-73a504b5">
 </head>
 <body data-site="oficial" data-site-version="2.3.0">
 <div class="bar" id="bar"></div>
@@ -349,7 +349,7 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <p class="hint mobhint">Dica: gire o celular na horizontal pra jogar em tela maior.</p>
   <p class="hint">Espaço ou ↑ pula, ↓ agacha. No celular, use os botões. Cada fase é um dia da semana e a última é o sábado.</p>
   <section class="sec band ckb" id="sabadometro" style="margin-top:3rem;padding:2rem 0;border-radius:28px"><div class="wrap split">
-    <div><button id="btn" aria-label="Sabadar"><img src="img/sabadou-classico.jpg" alt=""></button></div>
+    <div><button id="btn" aria-label="Sabadar"><img src="img/sabadou-favicon.png?v=build-20261011033323-73a504b5" alt=""></button></div>
     <div><h2 class="big">sabadômetro</h2><p class="lead">Toque no bacano. Sem motivo. Só toca.</p><div id="cnt">0</div><div id="msg"></div><div id="ph"></div>
       <div class="game-rewards"><b>🏆 Recompensas</b><br>Os 10 primeiros a chegar a 1 milhão de cliques ganham follow. O primeiro a chegar a 1 bilhão ganha R$ 5 via Pix. O Sabadou pode pedir confirmação da conta e do resultado.</div>
       <div class="shop"><h3>lojinha do bacano</h3><p class="hint">Compre melhorias para aumentar seus ganhos. Sábado e domingo têm turbo de 90× após 1 milhão de cliques, no horário de Brasília!</p><p class="hint" id="game-turbo" aria-live="polite"></p><div id="coin" style="font-size:2rem;font-weight:800"></div><div id="shl"></div></div>
@@ -418,14 +418,14 @@ button,a,.day{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <p class="mut" id="lm" style="margin:0;min-height:1.4em"></p>
   <div class="edb"><button class="cta" type="submit">entrar</button><button class="cta ghost" type="button" id="lc">cancelar</button></div></form></dialog>
 
-<script src="js/sabadou-updates.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-fanart-records.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-podium.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-admin.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-clicks.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-fan-auth.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-sounds.js?v=build-20261011032654-00d119d8"></script>
-<script src="js/sabadou-run.js?v=build-20261011032654-00d119d8"></script>
+<script src="js/sabadou-updates.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-fanart-records.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-podium.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-admin.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-clicks.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-fan-auth.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-sounds.js?v=build-20261011033323-73a504b5"></script>
+<script src="js/sabadou-run.js?v=build-20261011033323-73a504b5"></script>
 <script>
 
 const PLAY='<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
