@@ -10,6 +10,9 @@
   const gestures=new Set(Object.keys(catalog));
   let client=null,user=null,auth=null,history=[],busy=false,epoch=0,controller=null,lastExpression=null;
   let cooldownUntil=0,cooldownTimer=null;
+  const voice=window.SabadouVoice?.mount({onStart:payload=>{
+    if(payload.gesture)express({...payload,durationMs:15000});
+  }});
   function message(role,text){
     const article=document.createElement('article'),label=document.createElement('small'),body=document.createElement('p');
     article.className='chat-message '+role;label.textContent=role==='user'?'você':role==='welcome'?'boas-vindas':'bacano · IA';
@@ -32,6 +35,7 @@
   }
   function reset(){
     epoch++;controller?.abort();controller=null;busy=false;history=[];lastExpression=null;
+    voice?.clear();
     window.SabadouCharacter?.stop().catch(()=>{});log.replaceChildren();
     message('welcome','E aí, calabreso! Manda uma ideia ou pergunta sobre o Sabadou. Vamos criar algo bacana juntos?');
     controls();
@@ -55,6 +59,7 @@
   login.onclick=async()=>{
     if(!client||busy)return;
     if(!user){fanAuth.open();return}
+    voice?.stop();
     login.disabled=true;
     const {error}=await client.auth.signOut({scope:'local'});
     if(error){announce('Não consegui sair agora. Tente novamente.',true);controls()}else applySession(null);
@@ -77,6 +82,7 @@
     event.preventDefault();if(!client||busy||Date.now()<cooldownUntil)return;
     const text=input.value.trim();if(!text||text.length>600)return;
     if(!user){fanAuth.open();return}
+    voice?.stop();
     const turn=++epoch,owner=user.id;busy=true;controls();announce('O bacano está pensando…');
     const item=message('user',text),request=new AbortController();controller=request;
     const timeout=setTimeout(()=>request.abort(),55000);
@@ -98,6 +104,7 @@
       if(!result||typeof result.text!=='string'||!result.text.trim()||result.text.length>360||!gestures.has(result.gesture))throw {message:'Recebi uma resposta incompleta. Tente novamente.'};
       message('assistant',result.text);history=[...history,{role:'user',text},{role:'assistant',text:result.text}].slice(-8);
       input.value='';input.dispatchEvent(new Event('input'));express({gesture:result.gesture,text:result.text});
+      voice?.setResponse(result);
       announce('Resposta recebida.');
     }catch(error){
       if(epoch!==turn)return;

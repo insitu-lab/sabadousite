@@ -18,7 +18,9 @@ supabase-bacano-chat.sql, secret GROQ_API_KEY e Edge Function bacano-chat.
 Os arquivos de servidor ficam somente em supabase/ no projeto de edicao.
 Siga ATIVAR-CONVERSA-IA.md na pasta principal; publicar so este pacote nao ativa a IA.
 Para a IA escolher as 50 expressoes, atualize tambem o codigo da funcao
-bacano-chat no Supabase. Essa ampliacao nao exige SQL novo. Nao ha voz adicionada.
+bacano-chat no Supabase. Essa ampliacao nao exige SQL novo.
+O botao ativar voz usa somente vozes locais em portugues do aparelho, sem API paga.
+Publique tambem js/sabadou-voice.js e os estilos do pacote para habilitar a leitura.
 O chat agora utiliza Groq. Mantenha sua conta no plano Free; a cota pode acabar.
 O codigo nao usa a chave antiga da OpenAI nem troca para um provedor pago.
 
