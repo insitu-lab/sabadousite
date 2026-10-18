@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018194124-1d551252';
+import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018195326-25547941';
 
 let started=false;
 export async function start(){

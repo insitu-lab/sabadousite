@@ -14,11 +14,13 @@ Envie tambÃ©m o HTML, css, js, vendor e release.json novos: o modelo agora usa
 O ZIP e os FBX originais nÃ£o devem ser enviados para o repositÃ³rio do site.
 
 A caixa de conversa com IA depende da ativacao no Supabase: SQL
-supabase-bacano-chat.sql, secret OPENAI_API_KEY e Edge Function bacano-chat.
+supabase-bacano-chat.sql, secret GROQ_API_KEY e Edge Function bacano-chat.
 Os arquivos de servidor ficam somente em supabase/ no projeto de edicao.
 Siga ATIVAR-CONVERSA-IA.md na pasta principal; publicar so este pacote nao ativa a IA.
 Para a IA escolher as 50 expressoes, atualize tambem o codigo da funcao
 bacano-chat no Supabase. Essa ampliacao nao exige SQL novo. Nao ha voz adicionada.
+O chat agora utiliza Groq. Mantenha sua conta no plano Free; a cota pode acabar.
+O codigo nao usa a chave antiga da OpenAI nem troca para um provedor pago.
 
 Os SQLs e a Edge Function ficam em supabase/ na raiz do projeto de ediÃ§Ã£o e sÃ£o aplicados separadamente.
 
