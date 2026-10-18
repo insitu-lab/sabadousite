@@ -10,7 +10,7 @@ Os caminhos do index.html deste pacote jÃ¡ estÃ£o ajustados para o site publ
 
 Se o GitHub recusar o lote assets, cancele o envio antigo e envie assets/3d,
 assets/videos e assets/sfx em commits separados, mantendo esses caminhos.
-Envie tambÃ©m o HTML, js, vendor e release.json novos: o modelo agora usa GLB.
+Envie tambÃ©m o HTML, css, js, vendor e release.json novos: o modelo agora usa GLB.
 O ZIP e os FBX originais nÃ£o devem ser enviados para o repositÃ³rio do site.
 
 Os SQLs e a Edge Function ficam em supabase/ na raiz do projeto de ediÃ§Ã£o e sÃ£o aplicados separadamente.

@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestures} from './sabadou-character-gestures.js?v=build-20261018162943-c5e591e3';
+import {GESTURES,createGestures} from './sabadou-character-gestures.js?v=build-20261018164154-312b2e4d';
 
 let started=false;
 export async function start(){
@@ -17,7 +17,9 @@ export async function start(){
   const bubble=document.getElementById('character-expression'),bubbleText=document.getElementById('character-expression-text');
   const examples={talk:'Calabreso, você pode enviar sua fanart pelo site e acompanhar o resultado!',point:'Olha ali: escolha uma animação nos botões abaixo.',wave:'E aí, calabreso! Seja bem-vindo ao Sabadou.',think:'Hmm… deixa eu pensar numa ideia bacana para a sua fanart.',yes:'Isso mesmo, calabreso! Você entendeu direitinho.',celebrate:'Aí sim! Mais uma conquista para os calabresos!'};
   let expressionEpoch=0,returnTimer=null,characterApi=null;
-  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'default'});
+  let renderer;
+  try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'default'})}
+  catch(cause){throw Object.assign(new Error('Não foi possível iniciar a renderização WebGL 2 neste navegador.',{cause}),{code:'renderer'})}
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
   const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(38,1,.01,100);
@@ -47,7 +49,7 @@ export async function start(){
     }
     return clip;
   }
-  function lock(value){busy=value;buttons.forEach(button=>button.disabled=value);pause.disabled=value;cameraButton.disabled=value;speed.disabled=value}
+  function lock(value){busy=value;buttons.forEach(button=>button.disabled=value||!cache.has(button.dataset.motion));pause.disabled=value;cameraButton.disabled=value;speed.disabled=value}
   async function load(id){
     if(cache.has(id))return cache.get(id);
     throw new Error('A animação não está disponível neste modelo.');
@@ -69,7 +71,7 @@ export async function start(){
   }
   async function express(payload={}){
     if(!payload||typeof payload!=='object'||disposed||busy)return false;
-    const id=expressiveIds.has(payload.gesture)?payload.gesture:'talk',epoch=++expressionEpoch;
+    const id=expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle',epoch=++expressionEpoch;
     clearTimeout(returnTimer);
     const text=typeof payload.text==='string'?payload.text.trim().slice(0,360):'';
     if(!await select(id)||epoch!==expressionEpoch)return false;
@@ -89,7 +91,7 @@ export async function start(){
     status.textContent='Carregando personagem…';
     const asset=await loader.loadAsync(modelUrl.href,event=>{
       if(event.lengthComputable)status.textContent='Carregando personagem · '+Math.round(event.loaded/event.total*100)+'%';
-    });
+    }).catch(cause=>{throw Object.assign(new Error('Não foi possível carregar o arquivo 3D. Confira se assets/3d/vilao/web e vendor/three foram publicados por completo.',{cause}),{code:'model'})});
     model=asset.scene;
     for(const id of ['idle','walk','attack','fall'])cache.set(id,clipFor(asset.animations.find(clip=>clip.name===id)));
     const bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
@@ -97,7 +99,15 @@ export async function start(){
     const scale=2.4/size.y;stage.scale.setScalar(scale);stage.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);stage.add(model);
     mixer=new THREE.AnimationMixer(model);
     mixer.clipAction(cache.get('idle')).play();mixer.update(0);model.updateWorldMatrix(true,true);
-    for(const [id,clip] of createGestures(model,cache.get('idle')))cache.set(id,clip);
+    try{
+      for(const [id,clip] of createGestures(model,cache.get('idle')))cache.set(id,clip);
+    }catch(error){
+      console.warn('O personagem abriu, mas os gestos não puderam ser preparados.',error);
+      const warning=document.getElementById('model-warning');
+      warning.textContent='O personagem abriu com as animações originais. Os gestos não puderam ser preparados para este esqueleto.';warning.hidden=false;
+      document.querySelector('.original-motions').open=true;
+      for(const id of Object.keys(GESTURES))expressiveIds.delete(id);
+    }
     mixer.stopAllAction();
     mixer.addEventListener('finished',event=>{
       const id=currentId;
@@ -119,7 +129,7 @@ export async function start(){
     renderer.domElement.addEventListener('pointerup',event=>{
       if(!down||Math.hypot(event.clientX-down[0],event.clientY-down[1])>7)return;down=null;
       const rect=renderer.domElement.getBoundingClientRect();pointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);
-      if(raycaster.intersectObject(model,true).length)choose(currentId==='wave'?'idle':'wave');
+      if(raycaster.intersectObject(model,true).length)choose(currentId==='wave'||!cache.has('wave')?'idle':'wave');
     });
     renderer.domElement.addEventListener('webglcontextlost',()=>{status.textContent='A renderização foi interrompida. Recarregue a página para abrir novamente.';lock(true)});
     addEventListener('pagehide',event=>{renderer.setAnimationLoop(null);if(event.persisted)return;disposed=true;clearTimeout(returnTimer);removeEventListener('sabadou:character-expression',onExpression);if(window.SabadouCharacter===characterApi)delete window.SabadouCharacter;observer.disconnect();controls.dispose();renderer.dispose();draco.dispose();disposeModel(model)});

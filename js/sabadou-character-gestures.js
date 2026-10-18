@@ -13,7 +13,9 @@ export const GESTURES={
 export function createGestures(model,idleClip){
   const bones=[];model.traverse(node=>{if(node.isBone)bones.push(node)});
   const base=new Map(bones.map(bone=>[bone,bone.quaternion.clone()]));
-  const find=suffix=>bones.find(bone=>bone.name.toLowerCase().replace(/[^a-z]/g,'').endsWith(suffix.toLowerCase()));
+  // Preserve os números: Spine, Spine1 e Spine2 são ossos diferentes.
+  const normalize=name=>name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const find=suffix=>bones.find(bone=>normalize(bone.name).endsWith(normalize(suffix)));
   const head=find('Head'),chest=find('Spine2');
   const right={upper:find('RightArm'),lower:find('RightForeArm'),hand:find('RightHand')};
   const left={upper:find('LeftArm'),lower:find('LeftForeArm'),hand:find('LeftHand')};
@@ -53,6 +55,7 @@ export function createGestures(model,idleClip){
   }
 
   const clips=new Map();
+  try{
   for(const [id,config] of Object.entries(GESTURES)){
     const frames=48,times=Float32Array.from({length:frames+1},(_,i)=>i/frames*config.duration);
     const values=new Map(bones.map(bone=>[bone,[]]));
@@ -95,5 +98,6 @@ export function createGestures(model,idleClip){
     for(const bone of bones)tracks.push(new THREE.QuaternionKeyframeTrack(bone.name+'.quaternion',times,values.get(bone)));
     clips.set(id,new THREE.AnimationClip(id,config.duration,tracks));
   }
-  restore();return clips;
+  return clips;
+  }finally{restore()}
 }
