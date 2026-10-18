@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Resposta com expressão do Sabadou",
+  "description": "Contrato de integração futura. O texto é exibido como texto e o gesto é escolhido de uma lista permitida; não executa comandos gerados pela IA.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["text", "gesture"],
+  "properties": {
+    "text": {"type": "string", "minLength": 1, "maxLength": 360},
+    "gesture": {"type": "string", "enum": ["idle", "talk", "point", "wave", "think", "yes", "celebrate"]}
+  }
+}
