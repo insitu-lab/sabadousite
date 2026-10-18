@@ -27,6 +27,8 @@ Para alvos personalizados e controle das 38 articulacoes, substitua o index.ts d
 e escolha Deploy updates. Mantenha GROQ_API_KEY e JWT; nao ha SQL novo.
 Publique o GLB atualizado e os scripts de corpo/boca: os gestos acompanham toda a voz.
 As maos agora tem quatro dedos articulados separadamente. O repouso continua em silencio.
+O prototipo de autonomia virtual tem objetos e objetivos locais, sem chamadas extras de IA.
+Para planos pedidos no chat, publique a funcao bacano-chat atualizada. Sem SQL ou chave nova.
 O movimento da boca e aproximado; olhos ainda nao se movem individualmente.
 O botao ativar voz usa somente vozes locais em portugues do aparelho, sem API paga.
 Publique tambem js/sabadou-voice.js e os estilos do pacote para habilitar a leitura.

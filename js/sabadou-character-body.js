@@ -15,7 +15,7 @@ export function createBodyController(model){
   const sides=['Left','Right'].map((side,index)=>({
     side,key:side.toLowerCase(),sign:index===0?1:-1,
     upper:find(side+'Arm'),lower:find(side+'ForeArm'),hand:find(side+'Hand'),
-    target:new THREE.Vector3(.22,-.84,.22),roll:0,
+    target:new THREE.Vector3(.22,-.84,.22),roll:0,externalWeight:0,externalTarget:new THREE.Vector3(),hasExternal:false,
     fingers:DIGITS.map(digit=>{
       const name=side+'Hand'+digit[0].toUpperCase()+digit.slice(1);
       return {digit,parts:[1,2].map(segment=>{
@@ -28,8 +28,10 @@ export function createBodyController(model){
   let tracks=new Map(),profile={},until=0,profileAt=0,active=false,thinking=false;
   let custom=false,weight=0,armWeight=0,elapsed=0,nextLook=0,lookX=0,lookY=0,aimX=0,aimY=0;
   let pointerAt=-Infinity,pointerX=0,pointerY=0,energy=.5,tempo=1;
+  let environment={};
+  const worldLook=new THREE.Vector3();let worldLookWeight=0,hasWorldLook=false;
   const temp=new THREE.Quaternion(),goal=new THREE.Quaternion(),euler=new THREE.Euler();
-  const position=bone=>bone.getWorldPosition(new THREE.Vector3());
+  const position=bone=>bone?.getWorldPosition(new THREE.Vector3())||new THREE.Vector3();
   const rotate=(bone,x,y,z)=>{if(bone)bone.quaternion.multiply(temp.setFromEuler(euler.set(x,y,z)))};
   function beforeUpdate(){
     // AnimationMixer can skip writing constant tracks. Remove our previous
@@ -121,8 +123,31 @@ export function createBodyController(model){
     rotate(find('Spine1'),.018*breathe,.025*Math.sin(rate*.47)*rest,-.018*shift*rest);
     rotate(find('Spine2'),.022*Math.sin(rate*1.6-.4),.035*Math.sin(rate*.31)*rest,.018*Math.sin(rate*.57)*rest);
     rotate(find('Head'),lookY*rest+.02*Math.sin(rate*.83),lookX*rest,.035*Math.sin(rate*.37)*rest+(thinking?.09:0));
+    if(environment.look?.isVector3){
+      if(!hasWorldLook)worldLook.copy(position(find('Head'))).add(new THREE.Vector3(0,0,1));
+      worldLook.lerp(environment.look,1-Math.exp(-dt*4));hasWorldLook=true;
+    }
+    worldLookWeight+=(Number(!!environment.look?.isVector3)-worldLookWeight)*(1-Math.exp(-dt*5));
+    if(hasWorldLook&&worldLookWeight>.001){
+      const head=find('Head');
+      if(head){
+        const delta=worldLook.clone().sub(position(head));
+        const pitch=THREE.MathUtils.clamp(-Math.atan2(delta.y,Math.hypot(delta.x,delta.z)),-.55,.7);
+        const yaw=THREE.MathUtils.clamp(Math.atan2(delta.x,delta.z),-.8,.8),before=head.quaternion.clone();
+        worldRotation(head,new THREE.Quaternion().setFromEuler(new THREE.Euler(pitch,yaw,0)));
+        const after=head.quaternion.clone();head.quaternion.copy(before).slerp(after,.85*worldLookWeight);
+      }
+    }
     for(const arm of sides){
-      const hand=profile.hands?.[arm.key],isThumb=weight>.001&&hand?.pose==='thumbs_up';
+      const override=environment.arms?.[arm.key];
+      const external=!!override?.isVector3;
+      if(external){
+        if(!arm.hasExternal)arm.externalTarget.copy(position(arm.hand));
+        arm.externalTarget.lerp(override,1-Math.exp(-dt*5));arm.hasExternal=true;
+      }
+      arm.externalWeight+=(Number(external)-arm.externalWeight)*(1-Math.exp(-dt*6));
+      const hand=environment.hands?.[arm.key]||profile.hands?.[arm.key],handWeight=Math.max(weight,arm.externalWeight);
+      const isThumb=handWeight>.001&&hand?.pose==='thumbs_up';
       rotate(find(arm.side+'Shoulder'),.022*breathe,0,-arm.sign*.02*Math.sin(rate*1.6)*rest);
       rotate(arm.upper,.045*Math.sin(rate*.61+arm.sign)*rest,arm.sign*.025*shift*rest,arm.sign*.045*Math.sin(rate*.43)*rest);
       rotate(arm.lower,0,-arm.sign*.055*Math.sin(rate*.67+arm.sign)*rest,0);
@@ -132,13 +157,19 @@ export function createBodyController(model){
         arm.target.lerp(next,1-Math.exp(-dt*4));arm.roll+=(clamp(target.roll,-100,100)-arm.roll)*(1-Math.exp(-dt*4));
         solve(arm,arm.target,armWeight);rotate(arm.hand,0,0,THREE.MathUtils.degToRad(arm.roll)*armWeight);
       }
-      if(isThumb)orientThumb(arm,weight);
+      if(arm.hasExternal&&arm.externalWeight>.001&&arm.upper&&arm.lower&&arm.hand){
+        model.updateWorldMatrix(true,true);
+        const reach=position(arm.upper).distanceTo(position(arm.lower))+position(arm.lower).distanceTo(position(arm.hand));
+        const relative=arm.externalTarget.clone().sub(position(arm.upper)).divideScalar(Math.max(.001,reach));relative.x*=arm.sign;
+        solve(arm,relative,arm.externalWeight);
+      }else if(!external)arm.hasExternal=false;
+      if(isThumb)orientThumb(arm,handWeight);
       for(const finger of arm.fingers){
         const resting=.10+.045*Math.sin(rate*.77+arm.sign+DIGITS.indexOf(finger.digit));
-        let curl=clamp(hand?.[finger.digit],0,1,.12)*weight+resting*(1-weight);
-        if(isThumb)curl=(finger.digit==='thumb'?0:1)*weight+resting*(1-weight);
+        let curl=clamp(hand?.[finger.digit],0,1,.12)*handWeight+resting*(1-handWeight);
+        if(isThumb)curl=(finger.digit==='thumb'?0:1)*handWeight+resting*(1-handWeight);
         for(let i=0;i<finger.parts.length;i++){
-          const part=finger.parts[i];if(!part.bone||!part.axis||(!isThumb&&tracks.has(part.name)))continue;
+          const part=finger.parts[i];if(!part.bone||!part.axis||(!environment.hands?.[arm.key]&&!isThumb&&tracks.has(part.name)))continue;
           const angle=curl*(i===0?1.15:1.55)*(finger.digit==='thumb'?.7:1);
           goal.setFromAxisAngle(part.axis,angle);part.q.slerp(goal,1-Math.exp(-dt*7));part.bone.quaternion.copy(part.q);
         }
@@ -148,10 +179,10 @@ export function createBodyController(model){
   }
   return {
     get custom(){return custom},hasFingers:sides.every(arm=>arm.fingers.every(finger=>finger.parts.every(part=>part.bone))),
-    setProfile,update,beforeUpdate,
+    setProfile,update,beforeUpdate,worldControl(value){environment=value||{}},
     speak(value){active=!!value;if(!active)until=0},
     think(value){thinking=!!value},
     gaze(x,y){pointerX=clamp(x,-1,1);pointerY=clamp(y,-1,1);pointerAt=elapsed},
-    reset(){beforeUpdate();tracks=new Map();profile={};custom=false;active=thinking=false;until=0;weight=armWeight=0;for(const q of offsets.values())q.identity()}
+    reset(){beforeUpdate();tracks=new Map();profile={};environment={};hasWorldLook=false;worldLookWeight=0;custom=false;active=thinking=false;until=0;weight=armWeight=0;for(const arm of sides){arm.externalWeight=0;arm.hasExternal=false}for(const q of offsets.values())q.identity()}
   };
 }

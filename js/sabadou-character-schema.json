@@ -405,6 +405,59 @@
           "maximum": 1.6
         }
       }
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "target",
+          "hand",
+          "duration"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "look",
+              "point",
+              "reach",
+              "hold",
+              "release",
+              "inspect_hand",
+              "wave",
+              "rest"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "left_hand",
+              "right_hand",
+              "orb",
+              "crystal",
+              "floor",
+              "self"
+            ]
+          },
+          "hand": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ]
+          },
+          "duration": {
+            "type": "number",
+            "minimum": 1.5,
+            "maximum": 8
+          }
+        }
+      }
     }
   }
 }

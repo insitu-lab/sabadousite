@@ -1,6 +1,6 @@
 /* Dados de articulação e aproximação da fala. Nenhum comando da IA é executado. */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {createBodyController} from './sabadou-character-body.js?v=build-20261018210158-916d2855';
+import {createBodyController} from './sabadou-character-body.js?v=build-20261018211931-f218d9ad';
 
 export function createCharacterMotion(model){
   const body=createBodyController(model),mouths=[];
@@ -57,7 +57,7 @@ export function createCharacterMotion(model){
   function endSpeech(){speaking=false;paused=false;profileUntil=0;body.speak(false);face={mouthOpen:0,mouthRound:0}}
   return {
     hasMouth:mouths.length>0,hasFingers:body.hasFingers,get customBody(){return body.custom},
-    setProfile,update,chunk,boundary,beforeUpdate:body.beforeUpdate,think:body.think,gaze:body.gaze,
+    setProfile,update,chunk,boundary,beforeUpdate:body.beforeUpdate,think:body.think,gaze:body.gaze,worldControl:body.worldControl,
     beginSpeech(payload={}){setProfile(payload);body.speak(true);speaking=true;paused=false;text=String(payload.text||'').slice(0,360);chunk({charIndex:0,text})},
     pause(value){paused=!!value;if(!paused)anchorAt=performance.now()},
     endSpeech,

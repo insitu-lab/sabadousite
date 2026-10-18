@@ -2,8 +2,9 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018210158-916d2855';
-import {createCharacterMotion} from './sabadou-character-motion.js?v=build-20261018210158-916d2855';
+import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018211931-f218d9ad';
+import {createCharacterMotion} from './sabadou-character-motion.js?v=build-20261018211931-f218d9ad';
+import {createSceneAgent} from './sabadou-character-agent.js?v=build-20261018211931-f218d9ad';
 
 let started=false;
 export async function start(){
@@ -16,7 +17,7 @@ export async function start(){
   const expressiveIds=new Set(['idle',...Object.keys(GESTURES)]);
   const bubble=document.getElementById('character-expression'),bubbleText=document.getElementById('character-expression-text');
   let expressionEpoch=0,returnTimer=null,characterApi=null;
-  let speechActive=false,sequence=[],sequenceIndex=0,nextGestureAt=0,motion=null,currentCacheKey='idle';
+  let speechActive=false,sequence=[],sequenceIndex=0,nextGestureAt=0,motion=null,agent=null,currentCacheKey='idle';
   let renderer;
   try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'default'})}
   catch(cause){throw Object.assign(new Error('Não foi possível iniciar a renderização WebGL 2 neste navegador.',{cause}),{code:'renderer'})}
@@ -89,6 +90,7 @@ export async function start(){
     const epoch=++expressionEpoch;
     clearTimeout(returnTimer);
     motion?.setProfile(payload);
+    agent?.request(payload);
     const id=motion?.customBody?'idle':expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle';
     const text=typeof payload.text==='string'?payload.text.trim().slice(0,360):'';
     if(!await select(id)||epoch!==expressionEpoch)return false;
@@ -101,7 +103,7 @@ export async function start(){
   }
   function beginSpeech(payload={}){
     if(disposed||!model)return;
-    clearTimeout(returnTimer);speechActive=true;motion?.beginSpeech(payload);
+    clearTimeout(returnTimer);speechActive=true;agent?.setSpeaking(true);motion?.beginSpeech(payload);
     const first=motion?.customBody?'idle':expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle';
     const requested=motion?.customBody?[]:Array.isArray(payload.sequence)?payload.sequence.filter(id=>expressiveIds.has(id)).slice(0,4):[];
     sequence=[first,...requested.filter(id=>id!==first)];sequenceIndex=0;
@@ -109,7 +111,7 @@ export async function start(){
     const text=typeof payload.text==='string'?payload.text.slice(0,360):'';bubbleText.textContent=text;bubble.hidden=!text;
   }
   function endSpeech(){
-    if(disposed)return;speechActive=false;sequence=[];motion?.endSpeech();clearTimeout(returnTimer);select('idle');
+    if(disposed)return;speechActive=false;agent?.setSpeaking(false);sequence=[];motion?.endSpeech();clearTimeout(returnTimer);select('idle');
   }
   const onExpression=event=>{express(event.detail).catch(error=>console.warn('Expressão não aplicada.',error))};
   try{
@@ -146,6 +148,9 @@ export async function start(){
     const supportPoint=new THREE.Vector3(),homeY=stage.position.y;
     const footHeight=()=>supportBones.reduce((minimum,bone)=>Math.min(minimum,bone.getWorldPosition(supportPoint).y),Infinity);
     const restingFeet=footHeight();
+    const autonomyStatus=document.getElementById('autonomy-status'),autonomyToggle=document.getElementById('autonomy-toggle');
+    agent=createSceneAgent({scene,model,camera,onState:text=>{if(autonomyStatus)autonomyStatus.textContent=text}});
+    if(autonomyToggle){if(matchMedia('(prefers-reduced-motion: reduce)').matches)autonomyToggle.checked=false;agent.setEnabled(autonomyToggle.checked);autonomyToggle.onchange=()=>agent.setEnabled(autonomyToggle.checked)}
     mixer.stopAllAction();
     mixer.addEventListener('finished',event=>{
       const id=currentId;
@@ -169,22 +174,23 @@ export async function start(){
         sequenceIndex=(sequenceIndex+1)%sequence.length;const id=sequence[sequenceIndex];select(id);
         nextGestureAt=now+Math.max(3000,(motions[id].duration||4)*1000);
       }
-      motion?.beforeUpdate();mixer.update(dt);motion?.update(now,dt);
+      motion?.worldControl(agent?.update(dt));motion?.beforeUpdate();mixer.update(dt);motion?.update(now,dt);
       stage.position.y=homeY;model.updateWorldMatrix(true,true);
       const support=footHeight();
       if(Number.isFinite(support)&&Number.isFinite(restingFeet))stage.position.y+=THREE.MathUtils.clamp(restingFeet-support,-.5,.8);
-      stage.updateMatrixWorld(true);controls.update();renderer.render(scene,camera);
+      stage.updateMatrixWorld(true);agent?.afterPose();controls.update();renderer.render(scene,camera);
     };renderer.setAnimationLoop(draw);
     started=true;await select('idle');
     const onPointer=event=>{if(event.buttons)return;const r=viewport.getBoundingClientRect();motion?.gaze((event.clientX-r.left)/r.width*2-1,(event.clientY-r.top)/r.height-.5)};
     viewport.addEventListener('pointermove',onPointer);
-    characterApi={ready:true,express,startSpeech:beginSpeech,endSpeech,setThinking:value=>motion?.think(value),
+    characterApi={ready:true,express,startSpeech:beginSpeech,endSpeech,perceive:()=>agent?.perceive(),
+      setThinking:value=>{motion?.think(value);agent?.setBusy(value)},
       speechChunk:info=>motion?.chunk(info),speechBoundary:info=>motion?.boundary(info),speechPause:value=>motion?.pause(value),
-      stop:()=>{endSpeech();motion?.reset();return express({gesture:'idle',text:''})},gestures:[...expressiveIds]};
+      stop:()=>{endSpeech();agent?.reset();motion?.reset();return express({gesture:'idle',text:''})},gestures:[...expressiveIds]};
     window.SabadouCharacter=characterApi;addEventListener('sabadou:character-expression',onExpression);
     dispatchEvent(new CustomEvent('sabadou:character-ready'));
     renderer.domElement.addEventListener('webglcontextlost',()=>{status.textContent='A renderização foi interrompida. Recarregue a página para abrir novamente.';lock(true)});
-    addEventListener('pagehide',event=>{endSpeech();motion?.reset();renderer.setAnimationLoop(null);if(event.persisted)return;disposed=true;clearTimeout(returnTimer);removeEventListener('sabadou:character-expression',onExpression);if(window.SabadouCharacter===characterApi)delete window.SabadouCharacter;observer.disconnect();controls.dispose();renderer.dispose();draco.dispose();disposeModel(model)});
+    addEventListener('pagehide',event=>{endSpeech();agent?.reset();motion?.reset();renderer.setAnimationLoop(null);if(event.persisted)return;disposed=true;agent?.dispose();clearTimeout(returnTimer);removeEventListener('sabadou:character-expression',onExpression);if(window.SabadouCharacter===characterApi)delete window.SabadouCharacter;observer.disconnect();controls.dispose();renderer.dispose();draco.dispose();disposeModel(model)});
     addEventListener('pageshow',event=>{if(event.persisted&&!disposed){previous=performance.now();resize();renderer.setAnimationLoop(draw)}});
-  }catch(error){renderer.dispose();controls.dispose();draco.dispose();if(model)disposeModel(model);throw error}
+  }catch(error){agent?.dispose();renderer.dispose();controls.dispose();draco.dispose();if(model)disposeModel(model);throw error}
 }

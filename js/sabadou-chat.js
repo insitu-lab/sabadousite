@@ -97,7 +97,7 @@
       if(epoch!==turn)return;
       const response=await fetch(cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/bacano-chat',{
         method:'POST',headers:{apikey:cfg.supabaseKey,Authorization:'Bearer '+data.session.access_token,'Content-Type':'application/json'},
-        body:JSON.stringify({message:text,history:history.slice(-8)}),signal:request.signal,cache:'no-store'
+        body:JSON.stringify({message:text,history:history.slice(-8),scene:window.SabadouCharacter?.perceive?.()||null}),signal:request.signal,cache:'no-store'
       });
       const result=await response.json().catch(()=>null);
       if(epoch!==turn)return;
