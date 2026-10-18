@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12061f">
+<meta name="sabadou-build" content="build-20261018152351-5c1be3a3">
+<title>Sabadou — bacano em 3D</title>
+<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018152351-5c1be3a3">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
+<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018152351-5c1be3a3">
+<script src="config.js?v=build-20261018152351-5c1be3a3"></script>
+<script src="js/sabadou-visitors.js?v=build-20261018152351-5c1be3a3"></script>
+<script src="js/sabadou-maintenance.js?v=build-20261018152351-5c1be3a3"></script>
+<script defer src="js/sabadou-release.js?v=build-20261018152351-5c1be3a3"></script>
+<script>
+window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
+</script>
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js"}}</script>
+</head>
+<body data-site="oficial" data-presence-page="modelo3d">
+<header><a class="logo" href="index.html#calabresos">sabadou</a><a class="button outline" href="index.html#calabresos">← voltar aos calabresos</a></header>
+<main>
+  <section class="intro"><span class="eyebrow">laboratório dos calabresos</span><h1>o bacano<br>ganhou movimento.</h1><p>Gire, aproxime e escolha uma animação. Esse personagem é provisório: o modelo definitivo vem depois.</p></section>
+  <section class="experience" aria-label="Personagem interativo em três dimensões">
+    <div class="viewport" id="model-viewport">
+      <div class="welcome" id="model-welcome"><img src="img/sabadou-favicon.png" alt="Logo do Sabadou"><h2>bora conhecer?</h2><p>O modelo só carrega quando você tocar aqui. A primeira abertura pode levar um pouco.</p><button class="button" id="model-start" type="button">abrir personagem 3D <span aria-hidden="true">↗</span></button></div>
+      <div class="scene-label" hidden id="model-label"><span aria-hidden="true">●</span> modelo de teste · vilão</div>
+    </div>
+    <div class="controls"><p class="status" id="model-status" role="status" aria-live="polite">Pronto para abrir.</p><div class="animation-buttons" aria-label="Escolher animação"><button class="button outline" data-motion="idle" type="button" disabled>parado</button><button class="button outline" data-motion="walk" type="button" disabled>andar</button><button class="button outline" data-motion="attack" type="button" disabled>reagir</button><button class="button outline" data-motion="fall" type="button" disabled>cair</button></div><div class="extra-controls"><button class="button small outline" id="model-pause" type="button" disabled>pausar</button><button class="button small outline" id="model-camera" type="button" disabled>centralizar</button><label>velocidade <select id="model-speed" disabled><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option></select></label></div><p class="hint">Arraste para girar. Use a roda do mouse ou dois dedos para aproximar. Toque no personagem para ele reagir.</p></div>
+  </section>
+  <p class="footnote">Esta prévia mostra as animações do modelo enviado. A conversa com inteligência artificial é uma próxima etapa.</p>
+</main>
+<footer><a class="logo" href="index.html#inicio">sabadou</a><small>v2.3.0</small></footer>
+<script type="module">
+const start=document.getElementById('model-start'),status=document.getElementById('model-status');
+start.addEventListener('click',async()=>{
+  start.disabled=true;status.textContent='Preparando o 3D…';
+  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018152351-5c1be3a3');await viewer.start()}
+  catch(error){console.error('Não foi possível abrir o modelo.',error);status.textContent=location.protocol==='file:'?'Abra esta página pelo site publicado ou por um servidor local HTTP.':'Não foi possível abrir o modelo. Confira a conexão e se seu navegador permite WebGL 2.';start.disabled=false;start.textContent='tentar novamente'}
+});
+</script>
+</body>
+</html>
