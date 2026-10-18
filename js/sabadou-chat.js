@@ -10,9 +10,13 @@
   const gestures=new Set(Object.keys(catalog));
   let client=null,user=null,auth=null,history=[],busy=false,epoch=0,controller=null,lastExpression=null;
   let cooldownUntil=0,cooldownTimer=null;
-  const voice=window.SabadouVoice?.mount({onStart:payload=>{
-    if(payload.gesture)express({...payload,durationMs:15000});
-  }});
+  const voice=window.SabadouVoice?.mount({
+    onStart:payload=>window.SabadouCharacter?.startSpeech?.(payload),
+    onChunk:info=>window.SabadouCharacter?.speechChunk?.(info),
+    onBoundary:info=>window.SabadouCharacter?.speechBoundary?.(info),
+    onPause:value=>window.SabadouCharacter?.speechPause?.(value),
+    onEnd:()=>window.SabadouCharacter?.endSpeech?.()
+  });
   function message(role,text){
     const article=document.createElement('article'),label=document.createElement('small'),body=document.createElement('p');
     article.className='chat-message '+role;label.textContent=role==='user'?'você':role==='welcome'?'boas-vindas':'bacano · IA';
@@ -103,7 +107,7 @@
       }
       if(!result||typeof result.text!=='string'||!result.text.trim()||result.text.length>360||!gestures.has(result.gesture))throw {message:'Recebi uma resposta incompleta. Tente novamente.'};
       message('assistant',result.text);history=[...history,{role:'user',text},{role:'assistant',text:result.text}].slice(-8);
-      input.value='';input.dispatchEvent(new Event('input'));express({gesture:result.gesture,text:result.text});
+      input.value='';input.dispatchEvent(new Event('input'));express(result);
       voice?.setResponse(result);
       announce('Resposta recebida.');
     }catch(error){
@@ -118,7 +122,11 @@
       if(epoch===turn){busy=false;controller=null;controls();input.focus()}
     }
   });
-  addEventListener('sabadou:character-ready',()=>{if(lastExpression)express(lastExpression)});
+  addEventListener('sabadou:character-ready',()=>{
+    if(lastExpression)express(lastExpression);
+    const speech=voice?.getState();
+    if(speech?.active){window.SabadouCharacter.startSpeech?.(speech.payload);window.SabadouCharacter.speechChunk?.(speech.chunk)}
+  });
   addEventListener('pagehide',()=>{reset();input.value='';clearInterval(cooldownTimer)});
   addEventListener('pageshow',event=>{
     if(!event.persisted)return;

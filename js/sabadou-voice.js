@@ -1,13 +1,14 @@
 /* Leitura local das respostas. Sem microfone, chave ou serviço de TTS externo. */
 (()=>{
   'use strict';
-  window.SabadouVoice={mount({onStart=()=>{}}={}){
+  window.SabadouVoice={mount({onStart=()=>{},onChunk=()=>{},onBoundary=()=>{},onPause=()=>{},onEnd=()=>{}}={}){
     const find=id=>document.getElementById(id),toggle=find('voice-toggle'),replay=find('voice-replay');
     const stopButton=find('voice-stop'),select=find('voice-select'),status=find('voice-status');
-    if(!toggle||!replay||!stopButton||!select||!status)return {setResponse(){},stop(){},clear(){}};
+    if(!toggle||!replay||!stopButton||!select||!status)return {setResponse(){},stop(){},clear(){},getState(){return {active:false}}};
     const supported='speechSynthesis' in window&&typeof window.SpeechSynthesisUtterance==='function';
     const synth=supported?window.speechSynthesis:null;
     let enabled=false,voices=[],last=null,token=0,utterances=[],speaking=false,startTimer=null,endTimer=null;
+    let audioActive=false,currentPayload=null,currentChunk=null;
     function announce(text){status.textContent=text}
     function controls(){
       toggle.disabled=!supported;toggle.textContent=enabled?'desativar voz':'ativar voz';
@@ -33,8 +34,10 @@
       controls();
     }
     function cancel(){
+      const wasActive=audioActive;audioActive=false;currentPayload=null;currentChunk=null;
       token++;clearTimeout(startTimer);clearTimeout(endTimer);speaking=false;utterances=[];
       if(synth)try{synth.cancel()}catch{}
+      if(wasActive)onEnd();
       controls();
     }
     function chunks(text){
@@ -52,20 +55,32 @@
       if(!selected){announce('Instale uma voz de português nas configurações de fala do aparelho e recarregue a página. A conversa continua por texto.');return false}
       const text=typeof payload?.text==='string'?payload.text.trim().slice(0,360):'';
       if(!text)return false;
-      const sequence=token;let started=false;
+      const sequence=token;let started=false,nextOffset=0;
+      currentPayload=payload;
       const finish=(notice)=>{
         if(token!==sequence)return;
         cancel();announce(notice);
       };
       try{
         utterances=chunks(text).map(part=>{
+          const charOffset=text.indexOf(part,nextOffset);nextOffset=charOffset+part.length;
           const utterance=new SpeechSynthesisUtterance(part);utterance.voice=selected;utterance.lang=selected.lang;
           utterance.rate=1.02;utterance.pitch=1;utterance.volume=1;
           utterance.onstart=()=>{
             if(token!==sequence)return;
             clearTimeout(startTimer);
-            if(!started){started=true;announce('O bacano está falando · '+selected.name);onStart(payload)}
+            if(!started){started=true;audioActive=true;announce('O bacano está falando · '+selected.name);onStart(payload)}
+            currentChunk={charIndex:charOffset,text:part,at:performance.now()};onChunk(currentChunk);
           };
+          utterance.onboundary=event=>{
+            if(token!==sequence||!audioActive)return;
+            const index=charOffset+Math.max(0,Math.min(part.length,Number(event.charIndex)||0));
+            currentChunk={charIndex:index,text:text.slice(index,charOffset+part.length),at:performance.now()};
+            onBoundary({charIndex:index,charLength:Number(event.charLength)||0,name:event.name||'word'});
+          };
+          utterance.onpause=()=>{if(token===sequence)onPause(true)};
+          utterance.onresume=()=>{if(token===sequence)onPause(false)};
+          utterance.onend=()=>{if(token===sequence)onPause(true)};
           utterance.onerror=event=>{
             if(token!==sequence)return;
             finish(event.error==='not-allowed'?'O navegador bloqueou a leitura. Toque em “ouvir novamente” para liberar o som.':'Não consegui reproduzir essa voz. Escolha outra voz local ou confira o áudio do aparelho.');
@@ -98,7 +113,13 @@
     }
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&speaking){cancel();announce('Leitura pausada ao sair da tela. Toque em “ouvir novamente” para recomeçar.')}});
     return {
-      setResponse(payload){last={text:payload.text,gesture:payload.gesture};controls();if(enabled&&!document.hidden)read(last)},
+      setResponse(payload){last={text:payload.text,gesture:payload.gesture,sequence:payload.sequence,moves:payload.moves,face:payload.face};controls();if(enabled&&!document.hidden)read(last)},
+      getState(){
+        if(!audioActive||!currentPayload)return {active:false};
+        const info=currentChunk||{charIndex:0,text:currentPayload.text,at:performance.now()};
+        const advanced=Math.min(info.text.length,Math.floor((performance.now()-info.at)/1000*13.5));
+        return {active:true,payload:currentPayload,chunk:{charIndex:info.charIndex+advanced,text:info.text.slice(advanced)}};
+      },
       stop(){if(speaking){cancel();announce('Leitura parada.')}},
       clear(){cancel();last=null;controls();if(supported)announce(enabled?'Voz ativada para as próximas respostas.':'Ative para ouvir as respostas.')}
     };

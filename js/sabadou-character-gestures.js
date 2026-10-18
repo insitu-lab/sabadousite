@@ -122,7 +122,7 @@ export function createGestureFactory(model,idleClip){
   }
 
   // Cria apenas a expressão pedida, preservando a pose em reprodução.
-  return id=>{
+  return (id,{continuous=false}={})=>{
     const config=GESTURES[id];if(!config)throw new Error('Expressão desconhecida.');
     const live=bones.map(bone=>[bone,bone.quaternion.clone()]);
     const frames=64,times=Float32Array.from({length:frames+1},(_,i)=>i/frames*config.duration);
@@ -131,7 +131,7 @@ export function createGestureFactory(model,idleClip){
     for(let i=0;i<=frames;i++){
       const p=i/frames,phase=p*Math.PI*2;
       // As conversas repetidas mantêm o gesto; não voltam à pose neutra a cada ciclo.
-      const envelope=config.loop?1:THREE.MathUtils.smoothstep(p,0,.23)*(1-THREE.MathUtils.smoothstep(p,.76,1));
+      const envelope=config.loop||continuous?1:THREE.MathUtils.smoothstep(p,0,.23)*(1-THREE.MathUtils.smoothstep(p,.76,1));
       // Um ciclo inteiro de respiração mantém também a emenda dos loops contínua.
       restore(p*idleClip.duration);
       const frameBase=new Map(bones.map(bone=>[bone,bone.quaternion.clone()]));

@@ -1,5 +1,9 @@
 # Pacote pronto para publicar
 
+Para atualizacoes normais, prefira o ZIP atualizacao-oficial-N.zip gerado ao lado deste.
+Extraia e envie somente o conteudo de enviar-ao-github. Confira a base e a lista de remocao.
+Esta pasta site-oficial-N e a copia completa de reserva para instalacao/reparacao.
+
 Envie TODO o conteÃºdo desta pasta para a raiz do repositÃ³rio no GitHub.
 Mantenha as pastas js, css, assets, audio e img como estÃ£o.
 index.html, config.js e manutencao.html ficam na raiz.
@@ -19,6 +23,10 @@ Os arquivos de servidor ficam somente em supabase/ no projeto de edicao.
 Siga ATIVAR-CONVERSA-IA.md na pasta principal; publicar so este pacote nao ativa a IA.
 Para a IA escolher as 50 expressoes, atualize tambem o codigo da funcao
 bacano-chat no Supabase. Essa ampliacao nao exige SQL novo.
+Para sequencias e controle das 22 articulacoes, substitua o index.ts da mesma funcao
+e escolha Deploy updates. Mantenha GROQ_API_KEY e JWT; nao ha SQL novo.
+Publique o GLB atualizado e os scripts de corpo/boca: os gestos acompanham toda a voz.
+O movimento da boca e aproximado; olhos e dedos nao se movem individualmente.
 O botao ativar voz usa somente vozes locais em portugues do aparelho, sem API paga.
 Publique tambem js/sabadou-voice.js e os estilos do pacote para habilitar a leitura.
 O chat agora utiliza Groq. Mantenha sua conta no plano Free; a cota pode acabar.

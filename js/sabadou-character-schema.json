@@ -68,6 +68,143 @@
         "playful",
         "confident"
       ]
+    },
+    "sequence": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "enum": [
+          "idle",
+          "talk",
+          "explain",
+          "explain_steps",
+          "explain_carefully",
+          "present",
+          "present_left",
+          "present_right",
+          "point",
+          "point_left",
+          "point_up",
+          "point_down",
+          "wave",
+          "wave_both",
+          "welcome",
+          "goodbye",
+          "yes",
+          "nod_small",
+          "no",
+          "unsure",
+          "think",
+          "ponder",
+          "curious",
+          "idea",
+          "surprised",
+          "amazed",
+          "happy",
+          "laugh",
+          "celebrate",
+          "cheer",
+          "victory",
+          "proud",
+          "grateful",
+          "bow",
+          "applaud",
+          "encourage",
+          "reassure",
+          "empathy",
+          "sorry",
+          "disappointed",
+          "confused",
+          "embarrassed",
+          "shy",
+          "patient",
+          "listening",
+          "attentive",
+          "respectful",
+          "careful",
+          "playful",
+          "confident"
+        ]
+      }
+    },
+    "moves": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "joint",
+          "at",
+          "x",
+          "y",
+          "z"
+        ],
+        "properties": {
+          "joint": {
+            "type": "string",
+            "enum": [
+              "Hips",
+              "Spine",
+              "Spine1",
+              "Spine2",
+              "Neck",
+              "Head",
+              "LeftShoulder",
+              "LeftArm",
+              "LeftForeArm",
+              "LeftHand",
+              "RightShoulder",
+              "RightArm",
+              "RightForeArm",
+              "RightHand",
+              "LeftUpLeg",
+              "LeftLeg",
+              "LeftFoot",
+              "LeftToeBase",
+              "RightUpLeg",
+              "RightLeg",
+              "RightFoot",
+              "RightToeBase"
+            ]
+          },
+          "at": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "face": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mouthOpen",
+        "mouthRound"
+      ],
+      "properties": {
+        "mouthOpen": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.3
+        },
+        "mouthRound": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.65
+        }
+      }
     }
   }
 }
