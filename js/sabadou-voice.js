@@ -113,7 +113,7 @@
     }
     document.addEventListener('visibilitychange',()=>{if(document.hidden&&speaking){cancel();announce('Leitura pausada ao sair da tela. Toque em “ouvir novamente” para recomeçar.')}});
     return {
-      setResponse(payload){last={text:payload.text,gesture:payload.gesture,sequence:payload.sequence,moves:payload.moves,face:payload.face};controls();if(enabled&&!document.hidden)read(last)},
+      setResponse(payload){last={text:payload.text,gesture:payload.gesture,sequence:payload.sequence,moves:payload.moves,face:payload.face,arms:payload.arms,hands:payload.hands,body:payload.body};controls();if(enabled&&!document.hidden)read(last)},
       getState(){
         if(!audioActive||!currentPayload)return {active:false};
         const info=currentChunk||{charIndex:0,text:currentPayload.text,at:performance.now()};

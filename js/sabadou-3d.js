@@ -2,8 +2,8 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018204212-e4c61fcf';
-import {createCharacterMotion} from './sabadou-character-motion.js?v=build-20261018204212-e4c61fcf';
+import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018210158-916d2855';
+import {createCharacterMotion} from './sabadou-character-motion.js?v=build-20261018210158-916d2855';
 
 let started=false;
 export async function start(){
@@ -86,13 +86,14 @@ export async function start(){
   }
   async function express(payload={}){
     if(!payload||typeof payload!=='object'||disposed||busy)return false;
-    const id=expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle',epoch=++expressionEpoch;
+    const epoch=++expressionEpoch;
     clearTimeout(returnTimer);
     motion?.setProfile(payload);
+    const id=motion?.customBody?'idle':expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle';
     const text=typeof payload.text==='string'?payload.text.trim().slice(0,360):'';
     if(!await select(id)||epoch!==expressionEpoch)return false;
     bubbleText.textContent=text;bubble.hidden=!text;
-    if(motions[id].loop&&text&&!speechActive){
+    if((motions[id].loop||motion?.customBody)&&text&&!speechActive){
       const requested=Number(payload.durationMs),duration=Number.isFinite(requested)?requested:Math.max(3000,text.length*55);
       returnTimer=setTimeout(()=>{if(epoch===expressionEpoch&&!disposed)select('idle')},THREE.MathUtils.clamp(duration,1000,15000));
     }
@@ -101,8 +102,8 @@ export async function start(){
   function beginSpeech(payload={}){
     if(disposed||!model)return;
     clearTimeout(returnTimer);speechActive=true;motion?.beginSpeech(payload);
-    const first=expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle';
-    const requested=Array.isArray(payload.sequence)?payload.sequence.filter(id=>expressiveIds.has(id)).slice(0,4):[];
+    const first=motion?.customBody?'idle':expressiveIds.has(payload.gesture)?payload.gesture:expressiveIds.has('talk')?'talk':'idle';
+    const requested=motion?.customBody?[]:Array.isArray(payload.sequence)?payload.sequence.filter(id=>expressiveIds.has(id)).slice(0,4):[];
     sequence=[first,...requested.filter(id=>id!==first)];sequenceIndex=0;
     select(first);nextGestureAt=performance.now()+Math.max(3000,(motions[first].duration||4)*1000);
     const text=typeof payload.text==='string'?payload.text.slice(0,360):'';bubbleText.textContent=text;bubble.hidden=!text;
@@ -137,6 +138,9 @@ export async function start(){
     if(!motion.hasMouth){
       const warning=document.getElementById('model-warning');warning.textContent='A boca deste arquivo ainda não está articulada. Publique o modelo 3D atualizado junto com os scripts.';warning.hidden=false;
     }
+    if(!motion.hasFingers){
+      const warning=document.getElementById('model-warning');warning.textContent='Este arquivo 3D não tem os dedos articulados. Publique o GLB novo para os sinais com as mãos.';warning.hidden=false;
+    }
     // Referência dos pés para compensar inclinações e flexões das pernas.
     const supportBones=[];model.traverse(node=>{if(node.isBone&&/(Foot|ToeBase|Toe_End)$/.test(node.name))supportBones.push(node)});
     const supportPoint=new THREE.Vector3(),homeY=stage.position.y;
@@ -165,14 +169,16 @@ export async function start(){
         sequenceIndex=(sequenceIndex+1)%sequence.length;const id=sequence[sequenceIndex];select(id);
         nextGestureAt=now+Math.max(3000,(motions[id].duration||4)*1000);
       }
-      mixer.update(dt);motion?.update(now,dt);
+      motion?.beforeUpdate();mixer.update(dt);motion?.update(now,dt);
       stage.position.y=homeY;model.updateWorldMatrix(true,true);
       const support=footHeight();
       if(Number.isFinite(support)&&Number.isFinite(restingFeet))stage.position.y+=THREE.MathUtils.clamp(restingFeet-support,-.5,.8);
       stage.updateMatrixWorld(true);controls.update();renderer.render(scene,camera);
     };renderer.setAnimationLoop(draw);
     started=true;await select('idle');
-    characterApi={ready:true,express,startSpeech:beginSpeech,endSpeech,
+    const onPointer=event=>{if(event.buttons)return;const r=viewport.getBoundingClientRect();motion?.gaze((event.clientX-r.left)/r.width*2-1,(event.clientY-r.top)/r.height-.5)};
+    viewport.addEventListener('pointermove',onPointer);
+    characterApi={ready:true,express,startSpeech:beginSpeech,endSpeech,setThinking:value=>motion?.think(value),
       speechChunk:info=>motion?.chunk(info),speechBoundary:info=>motion?.boundary(info),speechPause:value=>motion?.pause(value),
       stop:()=>{endSpeech();motion?.reset();return express({gesture:'idle',text:''})},gestures:[...expressiveIds]};
     window.SabadouCharacter=characterApi;addEventListener('sabadou:character-expression',onExpression);

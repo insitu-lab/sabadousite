@@ -166,7 +166,23 @@
               "RightUpLeg",
               "RightLeg",
               "RightFoot",
-              "RightToeBase"
+              "RightToeBase",
+              "LeftHandThumb1",
+              "LeftHandThumb2",
+              "LeftHandIndex1",
+              "LeftHandIndex2",
+              "LeftHandMiddle1",
+              "LeftHandMiddle2",
+              "LeftHandRing1",
+              "LeftHandRing2",
+              "RightHandThumb1",
+              "RightHandThumb2",
+              "RightHandIndex1",
+              "RightHandIndex2",
+              "RightHandMiddle1",
+              "RightHandMiddle2",
+              "RightHandRing1",
+              "RightHandRing2"
             ]
           },
           "at": {
@@ -203,6 +219,190 @@
           "type": "number",
           "minimum": 0,
           "maximum": 0.65
+        }
+      }
+    },
+    "arms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": {
+        "left": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z",
+            "roll"
+          ],
+          "properties": {
+            "x": {
+              "type": "number",
+              "minimum": -0.6,
+              "maximum": 1
+            },
+            "y": {
+              "type": "number",
+              "minimum": -0.95,
+              "maximum": 1
+            },
+            "z": {
+              "type": "number",
+              "minimum": -0.1,
+              "maximum": 1
+            },
+            "roll": {
+              "type": "number",
+              "minimum": -100,
+              "maximum": 100
+            }
+          }
+        },
+        "right": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z",
+            "roll"
+          ],
+          "properties": {
+            "x": {
+              "type": "number",
+              "minimum": -0.6,
+              "maximum": 1
+            },
+            "y": {
+              "type": "number",
+              "minimum": -0.95,
+              "maximum": 1
+            },
+            "z": {
+              "type": "number",
+              "minimum": -0.1,
+              "maximum": 1
+            },
+            "roll": {
+              "type": "number",
+              "minimum": -100,
+              "maximum": 100
+            }
+          }
+        }
+      }
+    },
+    "hands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": {
+        "left": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pose",
+            "thumb",
+            "index",
+            "middle",
+            "ring"
+          ],
+          "properties": {
+            "pose": {
+              "type": "string",
+              "enum": [
+                "free",
+                "thumbs_up"
+              ]
+            },
+            "thumb": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "index": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "middle": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "ring": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "right": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pose",
+            "thumb",
+            "index",
+            "middle",
+            "ring"
+          ],
+          "properties": {
+            "pose": {
+              "type": "string",
+              "enum": [
+                "free",
+                "thumbs_up"
+              ]
+            },
+            "thumb": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "index": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "middle": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "ring": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    "body": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "energy",
+        "tempo"
+      ],
+      "properties": {
+        "energy": {
+          "type": "number",
+          "minimum": 0.15,
+          "maximum": 1
+        },
+        "tempo": {
+          "type": "number",
+          "minimum": 0.6,
+          "maximum": 1.6
         }
       }
     }

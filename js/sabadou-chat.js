@@ -88,6 +88,7 @@
     if(!user){fanAuth.open();return}
     voice?.stop();
     const turn=++epoch,owner=user.id;busy=true;controls();announce('O bacano está pensando…');
+    window.SabadouCharacter?.setThinking?.(true);
     const item=message('user',text),request=new AbortController();controller=request;
     const timeout=setTimeout(()=>request.abort(),55000);
     try{
@@ -119,13 +120,14 @@
       if(error.code==='auth'){await client.auth.signOut({scope:'local'});fanAuth.open()}
     }finally{
       clearTimeout(timeout);
-      if(epoch===turn){busy=false;controller=null;controls();input.focus()}
+      if(epoch===turn){window.SabadouCharacter?.setThinking?.(false);busy=false;controller=null;controls();input.focus()}
     }
   });
   addEventListener('sabadou:character-ready',()=>{
     if(lastExpression)express(lastExpression);
     const speech=voice?.getState();
     if(speech?.active){window.SabadouCharacter.startSpeech?.(speech.payload);window.SabadouCharacter.speechChunk?.(speech.chunk)}
+    window.SabadouCharacter?.setThinking?.(busy);
   });
   addEventListener('pagehide',()=>{reset();input.value='';clearInterval(cooldownTimer)});
   addEventListener('pageshow',event=>{
