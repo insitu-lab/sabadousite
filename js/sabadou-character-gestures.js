@@ -24,7 +24,7 @@ export function createGestures(model,idleClip){
   const restore=()=>{for(const bone of bones)bone.quaternion.copy(base.get(bone));model.updateWorldMatrix(true,true)};
   const rotate=(bone,x,y,z)=>{if(bone)bone.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x,y,z)))};
   const restHead=position(head);
-  const height=new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).y;
+  const height=new THREE.Box3().setFromObject(model,true).getSize(new THREE.Vector3()).y;
   const shoulderCenter=position(right.upper).add(position(left.upper)).multiplyScalar(.5);
 
   function setWorldQuaternion(bone,world){

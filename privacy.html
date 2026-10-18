@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/png" href="img/sabadou-favicon.png?v=build-20261018164154-312b2e4d">
+  <link rel="icon" type="image/png" href="img/sabadou-favicon.png?v=build-20261018183027-9f12d5d7">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Política de Privacidade — Sabadou</title>
@@ -158,7 +158,7 @@
       }
     }
   </style>
-<script src="js/sabadou-site-links.js?v=build-20261018164154-312b2e4d"></script>
+<script src="js/sabadou-site-links.js?v=build-20261018183027-9f12d5d7"></script>
 </head>
 
 <body>
@@ -469,6 +469,14 @@
       <h2>Presença em tempo real</h2>
       <p>Para estimar quantos navegadores estão com o site aberto e visível, usamos o serviço Realtime Presence do Supabase. O navegador envia um identificador aleatório diário e o nome da área aberta, como jogos, fanarts ou manutenção. Nomes, senhas, identificadores de conta e endereços IP não fazem parte dessa mensagem de presença.</p>
       <p>O identificador é salvo no armazenamento local para agrupar abas do mesmo navegador e é substituído em outro dia de uso. A contagem inclui visitantes sem login e é aproximada. Ao ocultar ou fechar a página, a presença é retirada; interrupções de conexão podem levar alguns segundos para aparecer. Este recurso não cria um histórico de navegação no banco do site.</p>
+    </section>
+
+    <section id="conversa-ia">
+      <h2>Conversa com o bacano e inteligência artificial</h2>
+      <p>A conversa utiliza a OpenAI para gerar texto e escolher um gesto do personagem. Ao enviar uma mensagem, o texto e até oito mensagens anteriores desta visita são enviados para a OpenAI por uma função de servidor no Supabase. A identidade da conta e a senha não são incluídas nesse pedido à OpenAI. Não envie informações sensíveis, senhas nem dados pessoais de outras pessoas.</p>
+      <p>O histórico fica na memória desta página, sem gravação de mensagens no banco do site ou no armazenamento local do navegador. É descartado ao limpar a conversa, sair da conta ou sair da página. Limpar a tela não desfaz pedidos já enviados ao provedor. O servidor pede que a resposta não seja armazenada como conversa pela API; o provedor ainda pode processar e reter dados conforme suas políticas de segurança e privacidade.</p>
+      <p>O Supabase valida sua sessão e registra contadores de uso vinculados ao identificador da conta, ao dia e ao horário dos pedidos para limitar chamadas. Não registra os textos da conversa nessas tabelas. A limpeza desses contadores antigos acontece no próximo uso, preservando o dia atual e os dois anteriores. Falhas também podem consumir uma tentativa de uso.</p>
+      <p>As respostas são produzidas por inteligência artificial, podem conter erros e não representam decisões do administrador. A conversa não acessa ou altera cliques, moedas, senhas, aprovações de fanarts ou resultados do pódio. A animação do personagem apenas acompanha o texto.</p>
     </section>
 
     <section>

@@ -13,6 +13,11 @@ assets/videos e assets/sfx em commits separados, mantendo esses caminhos.
 Envie tambÃ©m o HTML, css, js, vendor e release.json novos: o modelo agora usa GLB.
 O ZIP e os FBX originais nÃ£o devem ser enviados para o repositÃ³rio do site.
 
+A caixa de conversa com IA depende da ativacao no Supabase: SQL
+supabase-bacano-chat.sql, secret OPENAI_API_KEY e Edge Function bacano-chat.
+Os arquivos de servidor ficam somente em supabase/ no projeto de edicao.
+Siga ATIVAR-CONVERSA-IA.md na pasta principal; publicar so este pacote nao ativa a IA.
+
 Os SQLs e a Edge Function ficam em supabase/ na raiz do projeto de ediÃ§Ã£o e sÃ£o aplicados separadamente.
 
 Inclua release.json no upload: ele identifica esta publicaÃ§Ã£o e permite atualizar abas abertas.

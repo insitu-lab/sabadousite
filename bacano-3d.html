@@ -4,15 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12061f">
-<meta name="sabadou-build" content="build-20261018164154-312b2e4d">
+<meta name="sabadou-build" content="build-20261018183027-9f12d5d7">
 <title>Sabadou — bacano em 3D</title>
-<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018164154-312b2e4d">
+<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018183027-9f12d5d7">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018164154-312b2e4d">
-<script src="config.js?v=build-20261018164154-312b2e4d"></script>
-<script src="js/sabadou-visitors.js?v=build-20261018164154-312b2e4d"></script>
-<script src="js/sabadou-maintenance.js?v=build-20261018164154-312b2e4d"></script>
-<script defer src="js/sabadou-release.js?v=build-20261018164154-312b2e4d"></script>
+<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018183027-9f12d5d7">
+<script src="config.js?v=build-20261018183027-9f12d5d7"></script>
+<script src="js/sabadou-visitors.js?v=build-20261018183027-9f12d5d7"></script>
+<script src="js/sabadou-maintenance.js?v=build-20261018183027-9f12d5d7"></script>
+<script defer src="js/sabadou-release.js?v=build-20261018183027-9f12d5d7"></script>
+<script defer src="js/sabadou-fan-auth.js?v=build-20261018183027-9f12d5d7"></script>
+<script defer src="js/sabadou-chat.js?v=build-20261018183027-9f12d5d7"></script>
 <script>
 window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 </script>
@@ -21,7 +23,8 @@ window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 <body data-site="oficial" data-presence-page="modelo3d">
 <header><a class="logo" href="index.html#calabresos">sabadou</a><a class="button outline" href="index.html#calabresos">← voltar aos calabresos</a></header>
 <main>
-  <section class="intro"><span class="eyebrow">laboratório dos calabresos</span><h1>o bacano<br>ganhou movimento.</h1><p>Gire, aproxime e escolha uma animação. Esse personagem é provisório: o modelo definitivo vem depois.</p></section>
+  <section class="intro"><span class="eyebrow">laboratório dos calabresos</span><h1>troca uma ideia<br>com o bacano.</h1><p>Converse, peça ideias para sua fanart e veja o personagem reagir. Esse modelo é provisório: o definitivo vem depois.</p></section>
+  <div class="lab-layout">
   <section class="experience" aria-label="Personagem interativo em três dimensões">
     <div class="viewport" id="model-viewport">
       <div class="welcome" id="model-welcome"><img src="img/sabadou-favicon.png" alt="Logo do Sabadou"><h2>bora conhecer?</h2><p>O modelo só carrega quando você tocar aqui. A primeira abertura pode levar um pouco.</p><button class="button" id="model-start" type="button">abrir personagem 3D <span aria-hidden="true">↗</span></button></div>
@@ -45,9 +48,30 @@ window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
       <div class="extra-controls"><button class="button small outline" id="model-pause" type="button" disabled>pausar</button><button class="button small outline" id="model-camera" type="button" disabled>centralizar</button><label>velocidade <select id="model-speed" disabled><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option></select></label></div><p class="hint">Arraste para girar. Use a roda do mouse ou dois dedos para aproximar. Toque no personagem para ele acenar.</p>
     </div>
   </section>
-  <p class="footnote">Os novos gestos foram criados para esta prévia. As frases são exemplos, ainda sem uma IA conectada. Neste modelo, falar movimenta corpo, braços e cabeça; a boca precisa de uma preparação própria para acompanhar a voz.</p>
+  <aside class="chat-panel" aria-labelledby="chat-title">
+    <div class="chat-heading"><div><span class="eyebrow">conversa com inteligência artificial</span><h2 id="chat-title">e aí, calabreso?</h2></div><span class="chat-badge">IA</span></div>
+    <p class="chat-intro">Bora falar de desenhos, criatividade e sábado. Use sua conta do site para conversar.</p>
+    <div class="chat-account"><span id="chat-account">Conferindo sua conta…</span><button class="button small outline" id="chat-login" type="button" disabled>entrar com @</button></div>
+    <div class="chat-messages" id="chat-messages" role="log" aria-label="Conversa com o bacano" aria-live="polite" aria-relevant="additions text"></div>
+    <div class="chat-suggestions" aria-label="Ideias para começar">
+      <button type="button" data-chat-prompt="Me dá uma ideia bacana para uma fanart?">ideia de fanart</button>
+      <button type="button" data-chat-prompt="Como eu envio minha fanart pelo site?">como enviar?</button>
+      <button type="button" data-chat-prompt="Me conta uma piada de sábado!">uma piada</button>
+    </div>
+    <form id="chat-form" class="chat-form">
+      <label for="chat-input">sua mensagem</label>
+      <textarea id="chat-input" name="message" maxlength="600" rows="3" placeholder="Manda a ideia, calabreso…" aria-describedby="chat-privacy" required></textarea>
+      <div class="chat-actions"><small id="chat-count">0/600</small><button class="button" id="chat-send" type="submit" disabled>enviar <span aria-hidden="true">↗</span></button></div>
+    </form>
+    <p class="chat-status" id="chat-status" role="status" aria-live="polite">Preparando a conversa…</p>
+    <div class="chat-bottom"><button class="chat-clear" id="chat-clear" type="button">limpar conversa</button><a href="privacy.html#conversa-ia">privacidade</a></div>
+    <p class="chat-privacy" id="chat-privacy">Você conversa com uma IA, que pode errar. Não envie senhas nem dados pessoais. O texto e as últimas mensagens são enviados à OpenAI para gerar a resposta. Ao sair desta página, o histórico local é descartado.</p>
+  </aside>
+  </div>
+  <p class="footnote">Você pode conversar mesmo sem abrir o 3D. As respostas escolhem gestos do personagem; os botões de animação mostram exemplos locais. Nesta prévia não há voz nem sincronização labial.</p>
 </main>
 <footer><a class="logo" href="index.html#inicio">sabadou</a><small>v2.3.0</small></footer>
+<dialog id="ul" aria-labelledby="ut"><form id="ulf"><h2 id="ut">entrar</h2><label for="uh">seu @ do Instagram</label><input id="uh" placeholder="nome do Instagram (sem @)" autocomplete="username" required maxlength="30"><label for="upw">sua senha do Sabadou</label><input id="upw" type="password" placeholder="senha" autocomplete="current-password" required maxlength="72"><p id="um" role="status">Entre com seu @ e sua senha.</p><div class="animation-buttons"><button class="button small" id="usubmit" type="submit">entrar</button><button class="button small outline" id="uswitch" type="button">criar conta</button><button class="button small outline" type="button" id="chat-login-close">fechar</button></div></form></dialog>
 <script type="module">
 const start=document.getElementById('model-start'),status=document.getElementById('model-status');
 start.addEventListener('click',async()=>{
@@ -56,7 +80,7 @@ start.addEventListener('click',async()=>{
   detail.hidden=true;detailText.textContent='';document.getElementById('model-warning').hidden=true;
   start.disabled=true;status.textContent='Preparando o 3D…';
   let stage='module';
-  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018164154-312b2e4d');stage='model';await viewer.start()}
+  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018183027-9f12d5d7');stage='model';await viewer.start()}
   catch(error){
     console.error('Não foi possível abrir o modelo.',error);
     status.textContent=location.protocol==='file:'?'Abra esta página pelo site publicado ou por um servidor local HTTP.':

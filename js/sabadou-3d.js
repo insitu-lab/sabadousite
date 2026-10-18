@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestures} from './sabadou-character-gestures.js?v=build-20261018164154-312b2e4d';
+import {GESTURES,createGestures} from './sabadou-character-gestures.js?v=build-20261018183027-9f12d5d7';
 
 let started=false;
 export async function start(){
@@ -23,12 +23,13 @@ export async function start(){
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
   const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(38,1,.01,100);
-  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=2;controls.maxDistance=8;controls.maxPolarAngle=Math.PI*.53;
-  const cameraHome=()=>{camera.position.set(0,1.6,4.5);controls.target.set(0,1.15,0);controls.update()};cameraHome();
+  const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=2;controls.maxDistance=12;controls.maxPolarAngle=Math.PI*.53;
+  let fitDistance=4.5;
+  const cameraHome=()=>{camera.position.set(0,1.35+fitDistance*.1,fitDistance);controls.target.set(0,1.2,0);controls.update()};cameraHome();
   scene.add(new THREE.HemisphereLight(0xf4ddff,0x443050,3));
   const key=new THREE.DirectionalLight(0xfff0ff,3);key.position.set(3,5,4);scene.add(key);
   const rim=new THREE.DirectionalLight(0xc07aff,3);rim.position.set(-3,3,-3);scene.add(rim);
-  const ground=new THREE.Mesh(new THREE.CircleGeometry(1.45,64),new THREE.MeshStandardMaterial({color:0x371650,roughness:.9}));ground.rotation.x=-Math.PI/2;ground.position.y=-.015;scene.add(ground);
+  const ground=new THREE.Mesh(new THREE.CircleGeometry(1.45,64),new THREE.MeshStandardMaterial({color:0x371650,roughness:.9,transparent:true,opacity:.55}));ground.rotation.x=-Math.PI/2;ground.position.y=-.015;scene.add(ground);
   const stage=new THREE.Group();scene.add(stage);
   const draco=new DRACOLoader();draco.setDecoderPath(new URL('../vendor/three/examples/jsm/libs/draco/gltf/',import.meta.url).href);draco.setWorkerLimit(1);
   const loader=new GLTFLoader().setDRACOLoader(draco),cache=new Map();let model=null,mixer=null,current=null,currentId='idle',busy=false,paused=false,disposed=false;
@@ -94,11 +95,13 @@ export async function start(){
     }).catch(cause=>{throw Object.assign(new Error('Não foi possível carregar o arquivo 3D. Confira se assets/3d/vilao/web e vendor/three foram publicados por completo.',{cause}),{code:'model'})});
     model=asset.scene;
     for(const id of ['idle','walk','attack','fall'])cache.set(id,clipFor(asset.animations.find(clip=>clip.name===id)));
-    const bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
-    if(!Number.isFinite(size.y)||size.y<=0)throw new Error('O modelo não tem dimensões válidas.');
-    const scale=2.4/size.y;stage.scale.setScalar(scale);stage.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);stage.add(model);
-    mixer=new THREE.AnimationMixer(model);
+    // A malha articulada muda de posição ao aplicar o Idle. Meça os vértices
+    // nessa pose, não a caixa de referência anterior à animação.
+    stage.add(model);mixer=new THREE.AnimationMixer(model);
     mixer.clipAction(cache.get('idle')).play();mixer.update(0);model.updateWorldMatrix(true,true);
+    const bounds=new THREE.Box3().setFromObject(model,true),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+    if(!Number.isFinite(size.y)||size.y<=0)throw new Error('O modelo não tem dimensões válidas.');
+    const scale=2.4/size.y;stage.scale.setScalar(scale);stage.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);stage.updateWorldMatrix(true,true);
     try{
       for(const [id,clip] of createGestures(model,cache.get('idle')))cache.set(id,clip);
     }catch(error){
@@ -115,7 +118,15 @@ export async function start(){
     });
     document.getElementById('model-welcome').hidden=true;document.getElementById('model-label').hidden=false;
     viewport.append(renderer.domElement);renderer.domElement.setAttribute('aria-label','Personagem 3D. Use os botões para escolher uma animação.');
-    const resize=()=>{const width=viewport.clientWidth,height=viewport.clientHeight;renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix()};
+    let firstSize=true;
+    const resize=()=>{
+      const width=Math.max(1,viewport.clientWidth),height=Math.max(1,viewport.clientHeight);
+      renderer.setSize(width,height,false);camera.aspect=width/height;camera.updateProjectionMatrix();
+      const halfFov=THREE.MathUtils.degToRad(camera.fov/2);
+      const previousFit=fitDistance;
+      fitDistance=Math.max(3.6,1.4/Math.tan(halfFov),(size.x*scale*.65)/Math.tan(halfFov)/camera.aspect);
+      if(firstSize||Math.abs(fitDistance-previousFit)>.1){cameraHome();firstSize=false}
+    };
     const observer=new ResizeObserver(resize);observer.observe(viewport);resize();
     let previous=performance.now();const draw=now=>{const dt=Math.max(0,Math.min((now-previous)/1000,.05));previous=now;if(document.hidden||disposed)return;mixer.update(dt);controls.update();renderer.render(scene,camera)};renderer.setAnimationLoop(draw);
     buttons.forEach(button=>button.addEventListener('click',()=>choose(button.dataset.motion)));

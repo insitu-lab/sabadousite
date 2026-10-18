@@ -3,7 +3,7 @@
   'use strict';
   const cfg=typeof SITE_CONFIG!=='undefined'?SITE_CONFIG:(window.SITE_CONFIG||{});
   const api={state:undefined},fetchLimit=8000;
-  let guard=null,client=null,channel=null,authSubscription=null,confirmedAdmin=false;
+  let guard=null,client=null,channel=null,authSubscription=null,confirmedAdmin=false,connectionPromise=null;
   api.deadline=settings=>settings&&Object.prototype.hasOwnProperty.call(settings,'maintenance_until')?settings.maintenance_until:(cfg.maintenanceUntil||null);
   api.isActive=settings=>!!settings?.maintenance&&(!Number.isFinite(Date.parse(api.deadline(settings)))||Date.now()<Date.parse(api.deadline(settings)));
   api.read=async()=>{
@@ -93,14 +93,20 @@
     check();
   };
   // Páginas sem login próprio, como os vídeos, também recebem o Realtime.
-  api.connectRealtime=async()=>{
-    if(client||!cfg.supabaseUrl||!cfg.supabaseKey)return;
-    if(!window.supabase)await new Promise((resolve,reject)=>{
-      const script=document.createElement('script');
-      script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-      script.onload=resolve;script.onerror=reject;document.head.append(script);
-    });
-    if(!client)api.attachClient(window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey));
+  api.connectRealtime=()=>{
+    if(client)return Promise.resolve(client);
+    if(connectionPromise)return connectionPromise;
+    if(!cfg.supabaseUrl||!cfg.supabaseKey)return Promise.reject(new Error('Configuração indisponível.'));
+    connectionPromise=(async()=>{
+      if(!window.supabase)await new Promise((resolve,reject)=>{
+        const script=document.createElement('script');
+        script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload=resolve;script.onerror=reject;document.head.append(script);
+      });
+      if(!client)api.attachClient(window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey));
+      return client;
+    })().finally(()=>{connectionPromise=null});
+    return connectionPromise;
   };
   api.refresh=check;
   api.getClient=()=>client;
