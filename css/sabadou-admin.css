@@ -9,6 +9,12 @@
 #admin .admin-shortcuts a.on{background:var(--lil);border-color:var(--lil);color:#2a0f3d}
 #admin .admin-dashboard{display:block;width:100%;max-width:960px;margin-inline:auto}
 #admin .admin-loading{text-align:center;opacity:.7;margin:1rem 0}
+#admin .online-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.5rem 0}
+#admin .online-metrics>div{padding:1rem;border:1px solid var(--line);border-radius:18px;background:var(--bg);text-align:center}
+#admin .online-metrics strong{display:block;color:var(--lil);font:400 clamp(2.5rem,7vw,4rem)/1 var(--disp)}
+#admin .online-metrics span{display:block;margin-top:.5rem;font-size:.9rem}
+#admin .online-pages{list-style:none;margin:0;padding:0}
+#admin .online-pages li{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--line)}
 #admin :is(#adm-box,#sa,#podium-admin,#fq){display:contents}
 #admin :is(.admin-card,.ed,.podium-editor,.fanart-audit){display:block;min-width:0;width:100%;max-width:none;margin:0;padding:clamp(1rem,2vw,1.5rem);border:2px solid var(--line);border-radius:24px;background:var(--card)}
 /* Esconde também cartões recém-criados antes do seletor atualizar a tela. */
