@@ -27,7 +27,7 @@
         const previous=JSON.parse(sessionStorage.getItem(key)||'null');
         if(previous?.build===release.build&&Date.now()-previous.at<60000)return;
       }catch{}
-      const destination=new URL('index.html',manifestUrl);
+      const destination=new URL(location.pathname.endsWith('/bacano-3d.html')?'bacano-3d.html':'index.html',manifestUrl);
       destination.search=location.search;destination.hash=location.hash;
       destination.searchParams.set('__sabadou_build',release.build);
       // O manifesto pode chegar antes do HTML no CDN. Só troca quando ambos

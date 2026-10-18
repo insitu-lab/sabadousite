@@ -1,9 +1,7 @@
-/* Mantém os links das páginas comuns na versão de site que as abriu. */
+/* Páginas comuns e links antigos voltam para a única versão oficial. */
 (()=>{
-  const requested=new URLSearchParams(location.search).get('site');
-  const version=(requested||document.documentElement.dataset.packageSite)==='atualizacao'?'atualizacao':'oficial';
-  const entries={oficial:'index.html',atualizacao:'index.html'};
-  const homeUrl=new URL(entries[version],document.baseURI);
+  const version='oficial';
+  const homeUrl=new URL('index.html',document.baseURI);
   // A volta da manutenção deve buscar o HTML publicado, mesmo em aparelhos
   // que mantinham o index antigo em cache antes de receber o monitor de versão.
   if(/^https?:$/.test(location.protocol))homeUrl.searchParams.set('__sabadou_return',Date.now());

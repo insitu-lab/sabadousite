@@ -80,6 +80,7 @@
     },true);
   };
   api.attachClient=value=>{
+    window.SabadouVisitors?.attachClient(value);
     if(client===value)return;
     if(channel&&client)client.removeChannel(channel);
     authSubscription?.unsubscribe();client=value;confirmedAdmin=false;
@@ -102,6 +103,7 @@
     if(!client)api.attachClient(window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey));
   };
   api.refresh=check;
+  api.getClient=()=>client;
   const dateFormat=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
   function inputDate(value){
     if(!Number.isFinite(Date.parse(value)))return '';

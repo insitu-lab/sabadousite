@@ -14,7 +14,10 @@
         script.onerror=()=>{clearTimeout(timer);reject(new Error('Não foi possível carregar o login. Confira sua conexão.'))};
         document.head.append(script);
       });
-      return window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey);
+      const existing=window.SabadouMaintenance?.getClient();
+      if(existing)return existing;
+      const client=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseKey);
+      window.SabadouMaintenance?.attachClient(client);return client;
     })().catch(error=>{pending=null;throw error});
     return pending;
   }

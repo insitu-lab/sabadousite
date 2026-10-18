@@ -8,8 +8,10 @@
   }
   function active(settings,site,now=Date.now()){
     const start=Date.parse(settings?.update_started_at),end=Date.parse(settings?.update_until);
+    // Campanhas já salvas para a antiga atualização continuam válidas no site único.
+    const audiences=site==='oficial'?['oficial','atualizacao']:[site];
     return !!settings?.update_enabled&&!!settings?.update_message?.trim()&&Array.isArray(settings.update_targets)
-      &&settings.update_targets.includes(site)&&Number.isFinite(start)&&Number.isFinite(end)&&now>=start&&now<end;
+      &&settings.update_targets.some(target=>audiences.includes(target))&&Number.isFinite(start)&&Number.isFinite(end)&&now>=start&&now<end;
   }
   function confetti(dialog){
     if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
@@ -56,7 +58,7 @@
     function dispose(){disposed=true;clearInterval(timer);controller.abort();if(activeAdmin?.panel===panel)activeAdmin=null}
     function render(){
       if(!panel.isConnected){dispose();return}
-      const now=Date.now(),visible=['oficial','atualizacao'].some(site=>active(row,site,now));
+      const now=Date.now(),visible=active(row,'oficial',now);
       if(!visible){if(list.childElementCount)list.replaceChildren();signature='';clock=null;
         if(row)status.textContent='Nenhum aviso de atualização ativo.';return}
       const firstLine=row.update_message.split(/\r?\n/).find(line=>line.trim())?.trim()||'Novidades do Sabadou!';
@@ -105,7 +107,7 @@
   function mountAdmin(client,parent){
     mountActiveAdmin(client,parent);
     const panel=document.createElement('section');panel.className='ed update-admin';parent.append(panel);
-    panel.innerHTML='<h3>aviso de atualização</h3><p class="mut" style="margin:0">Enquanto estiver ativo, cada visita recebe confetes e um aviso com “Ler mais”.</p><form><label class="chk"><input type="checkbox" data-enabled> ativar aviso</label><label>Mensagem<textarea class="fld" data-message maxlength="1000" rows="4" placeholder="O que mudou no Sabadou?"></textarea></label><label>Destino de Ler mais<input class="fld" data-link maxlength="1000" value="#avisos" placeholder="#avisos ou https://..."></label><div class="duration-fields"><label>Duração<input class="fld" data-duration type="number" min="1" max="43200" step="1" value="24" required></label><label>Unidade<select class="fld" data-unit><option value="1">minutos</option><option value="60" selected>horas</option><option value="1440">dias</option></select></label></div><fieldset class="update-targets"><legend>Mostrar em</legend><label class="chk"><input type="checkbox" value="oficial" data-target checked> site oficial</label><label class="chk"><input type="checkbox" value="atualizacao" data-target checked> atualização</label></fieldset><p class="hint" style="margin:0">Salvar um aviso ativo começa um novo período agora. Duração máxima: 30 dias.</p><div class="edb"><button class="cta" type="submit" data-save>salvar aviso</button><button class="cta ghost" type="button" data-stop>encerrar aviso</button></div></form><p class="mut" data-status role="status" aria-live="polite"></p>';
+    panel.innerHTML='<h3>aviso de atualização</h3><p class="mut" style="margin:0">Enquanto estiver ativo, cada visita recebe confetes e um aviso com “Ler mais”.</p><form><label class="chk"><input type="checkbox" data-enabled> ativar aviso</label><label>Mensagem<textarea class="fld" data-message maxlength="1000" rows="4" placeholder="O que mudou no Sabadou?"></textarea></label><label>Destino de Ler mais<input class="fld" data-link maxlength="1000" value="#avisos" placeholder="#avisos ou https://..."></label><div class="duration-fields"><label>Duração<input class="fld" data-duration type="number" min="1" max="43200" step="1" value="24" required></label><label>Unidade<select class="fld" data-unit><option value="1">minutos</option><option value="60" selected>horas</option><option value="1440">dias</option></select></label></div><p class="hint" style="margin:0">Salvar um aviso ativo começa um novo período agora. Duração máxima: 30 dias.</p><div class="edb"><button class="cta" type="submit" data-save>salvar aviso</button><button class="cta ghost" type="button" data-stop>encerrar aviso</button></div></form><p class="mut" data-status role="status" aria-live="polite"></p>';
     const form=panel.querySelector('form'),status=panel.querySelector('[data-status]'),enabled=panel.querySelector('[data-enabled]'),message=panel.querySelector('[data-message]'),link=panel.querySelector('[data-link]'),duration=panel.querySelector('[data-duration]'),unit=panel.querySelector('[data-unit]');
     const fields=[...form.elements];let ready=false,busy=false;
     function lock(value){busy=value;fields.forEach(field=>field.disabled=value||!ready)}
@@ -117,19 +119,18 @@
       const row=r.data;ready=true;enabled.checked=!!row.update_enabled;message.value=row.update_message||'';link.value=row.update_link||'#avisos';
       const minutes=Math.round((Date.parse(row.update_until)-Date.parse(row.update_started_at))/60000);
       if(minutes>0&&minutes<=43200){unit.value=minutes%1440===0?'1440':minutes%60===0?'60':'1';duration.value=minutes/Number(unit.value)}
-      panel.querySelectorAll('[data-target]').forEach(input=>input.checked=(row.update_targets||[]).includes(input.value));status.textContent=describe(row);activeAdmin?.setRow(row);
+      status.textContent=describe(row);activeAdmin?.setRow(row);
     }catch(error){status.textContent='Não foi possível carregar o aviso. '+(error.message||'Tente novamente.')}
     finally{lock(false)}})();
     async function save(stop=false){
       if(busy||!ready)return;
-      const minutes=stop?1:Number(duration.value)*Number(unit.value),targets=[...panel.querySelectorAll('[data-target]:checked')].map(input=>input.value),on=stop?false:enabled.checked;
+      const minutes=stop?1:Number(duration.value)*Number(unit.value),targets=['oficial'],on=stop?false:enabled.checked;
       if(!stop&&(!Number.isSafeInteger(minutes)||minutes<1||minutes>43200)){status.textContent='Escolha uma duração entre 1 minuto e 30 dias.';return}
-      if(!stop&&!targets.length){status.textContent='Escolha pelo menos um site.';return}
       if(on&&!message.value.trim()){status.textContent='Escreva a mensagem do aviso.';return}
       try{destination(link.value.trim()||'#avisos')}catch(error){if(!stop){status.textContent=error.message;return}}
       lock(true);status.textContent='Salvando...';
       try{
-        const r=await client.rpc('set_site_update_notice',{p_enabled:on,p_message:stop?'':message.value.trim(),p_duration_minutes:minutes,p_link:stop?'#avisos':link.value.trim()||'#avisos',p_targets:stop?['oficial','atualizacao']:targets});if(r.error)throw r.error;
+        const r=await client.rpc('set_site_update_notice',{p_enabled:on,p_message:stop?'':message.value.trim(),p_duration_minutes:minutes,p_link:stop?'#avisos':link.value.trim()||'#avisos',p_targets:targets});if(r.error)throw r.error;
         enabled.checked=on;const current=await client.from('site_settings').select('*').eq('id',1).single();if(current.error)throw current.error;
         status.textContent='Salvo. '+describe(current.data);activeAdmin?.setRow(current.data);
       }catch(error){status.textContent='Não foi possível salvar o aviso. '+(error.message||'Tente novamente.')}
