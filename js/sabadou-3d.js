@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018192919-545ad698';
+import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018194124-1d551252';
 
 let started=false;
 export async function start(){
@@ -72,7 +72,7 @@ export async function start(){
       const clip=await load(id),next=mixer.clipAction(clip);next.reset();next.enabled=true;next.clampWhenFinished=!!motions[id].once;
       next.setLoop(motions[id].once?THREE.LoopOnce:THREE.LoopRepeat,motions[id].once?1:Infinity);
       next.setEffectiveWeight(1).setEffectiveTimeScale(1).play();
-      if(current&&current!==next){next.crossFadeFrom(current,.25,false)}
+      if(current&&current!==next){next.crossFadeFrom(current,.55,false)}
       current=next;currentId=id;mixer.timeScale=1;
       status.textContent='O bacano está '+motions[id].label+'.';
       return true;

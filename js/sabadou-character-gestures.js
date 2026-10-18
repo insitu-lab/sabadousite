@@ -17,7 +17,17 @@ export function createGestureFactory(model,idleClip){
   const left={upper:find('LeftArm'),lower:find('LeftForeArm'),hand:find('LeftHand')};
   if(!head||!chest||![right,left].every(arm=>arm.upper&&arm.lower&&arm.hand))throw new Error('O modelo precisa de cabeça, coluna e braços articulados para criar os gestos.');
   const position=bone=>bone.getWorldPosition(new THREE.Vector3());
-  const restore=()=>{for(const bone of bones)bone.quaternion.copy(base.get(bone));model.updateWorldMatrix(true,true)};
+  const idleRotations=new Map(bones.map(bone=>{
+    const track=idleClip.tracks.find(track=>track.name===bone.name+'.quaternion');
+    return [bone,track?.createInterpolant()];
+  }));
+  const restore=time=>{
+    for(const bone of bones){
+      const curve=idleRotations.get(bone);
+      if(curve)bone.quaternion.fromArray(curve.evaluate(time%idleClip.duration));else bone.quaternion.copy(base.get(bone));
+    }
+    model.updateWorldMatrix(true,true);
+  };
   const rotate=(bone,x,y,z)=>{if(bone)bone.quaternion.multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(x,y,z)))};
   const restHead=position(head);
   const height=new THREE.Box3().setFromObject(model,true).getSize(new THREE.Vector3()).y;
@@ -115,15 +125,19 @@ export function createGestureFactory(model,idleClip){
   return id=>{
     const config=GESTURES[id];if(!config)throw new Error('Expressão desconhecida.');
     const live=bones.map(bone=>[bone,bone.quaternion.clone()]);
-    const frames=36,times=Float32Array.from({length:frames+1},(_,i)=>i/frames*config.duration);
+    const frames=64,times=Float32Array.from({length:frames+1},(_,i)=>i/frames*config.duration);
     const values=new Map(bones.map(bone=>[bone,[]]));
     try{
     for(let i=0;i<=frames;i++){
       const p=i/frames,phase=p*Math.PI*2;
-      const envelope=THREE.MathUtils.smoothstep(p,0,.18)*(1-THREE.MathUtils.smoothstep(p,.8,1));
-      restore();applyPose(config,phase);
+      // As conversas repetidas mantêm o gesto; não voltam à pose neutra a cada ciclo.
+      const envelope=config.loop?1:THREE.MathUtils.smoothstep(p,0,.23)*(1-THREE.MathUtils.smoothstep(p,.76,1));
+      // Um ciclo inteiro de respiração mantém também a emenda dos loops contínua.
+      restore(p*idleClip.duration);
+      const frameBase=new Map(bones.map(bone=>[bone,bone.quaternion.clone()]));
+      applyPose(config,phase);
       for(const bone of bones){
-        const quaternion=base.get(bone).clone().slerp(bone.quaternion,envelope).normalize();
+        const quaternion=frameBase.get(bone).clone().slerp(bone.quaternion,envelope).normalize();
         quaternion.toArray(values.get(bone),values.get(bone).length);
       }
     }
