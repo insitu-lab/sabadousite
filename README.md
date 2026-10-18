@@ -17,6 +17,8 @@ A caixa de conversa com IA depende da ativacao no Supabase: SQL
 supabase-bacano-chat.sql, secret OPENAI_API_KEY e Edge Function bacano-chat.
 Os arquivos de servidor ficam somente em supabase/ no projeto de edicao.
 Siga ATIVAR-CONVERSA-IA.md na pasta principal; publicar so este pacote nao ativa a IA.
+Para a IA escolher as 50 expressoes, atualize tambem o codigo da funcao
+bacano-chat no Supabase. Essa ampliacao nao exige SQL novo. Nao ha voz adicionada.
 
 Os SQLs e a Edge Function ficam em supabase/ na raiz do projeto de ediÃ§Ã£o e sÃ£o aplicados separadamente.
 

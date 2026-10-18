@@ -5,7 +5,9 @@
   const find=id=>document.getElementById(id),input=find('chat-input'),send=find('chat-send'),status=find('chat-status');
   const log=find('chat-messages'),login=find('chat-login'),account=find('chat-account'),clear=find('chat-clear');
   const cfg=typeof SITE_CONFIG!=='undefined'?SITE_CONFIG:(window.SITE_CONFIG||{});
-  const gestures=new Set(['idle','talk','point','wave','think','yes','celebrate']);
+  const catalog=window.SabadouPoses;
+  if(!catalog?.idle){status.textContent='Não consegui carregar a conversa por completo. Recarregue a página.';return}
+  const gestures=new Set(Object.keys(catalog));
   let client=null,user=null,auth=null,history=[],busy=false,epoch=0,controller=null,lastExpression=null;
   let cooldownUntil=0,cooldownTimer=null;
   function message(role,text){
@@ -75,7 +77,7 @@
     event.preventDefault();if(!client||busy||Date.now()<cooldownUntil)return;
     const text=input.value.trim();if(!text||text.length>600)return;
     if(!user){fanAuth.open();return}
-    const turn=++epoch,owner=user.id;busy=true;controls();announce('O bacano está pensando…');express({gesture:'think',text:''});
+    const turn=++epoch,owner=user.id;busy=true;controls();announce('O bacano está pensando…');
     const item=message('user',text),request=new AbortController();controller=request;
     const timeout=setTimeout(()=>request.abort(),55000);
     try{
@@ -100,7 +102,8 @@
     }catch(error){
       if(epoch!==turn)return;
       item.classList.add('failed');const delivery=document.createElement('p');delivery.className='delivery';delivery.textContent='sem resposta · tente enviar novamente';item.append(delivery);
-      announce(error.name==='AbortError'?'A resposta demorou demais. Sua mensagem continua na caixa; tente novamente.':error.message||'Não consegui conectar à conversa. Confira sua conexão.',true);
+      const networkError=error instanceof TypeError&&/fetch|network|load/i.test(error.message);
+      announce(error.name==='AbortError'?'A resposta demorou demais. Sua mensagem continua na caixa; tente novamente.':networkError?'Não consegui conectar à conversa. Ela pode estar temporariamente indisponível. Tente novamente mais tarde.':error.message||'Não consegui conectar à conversa. Confira sua conexão.',true);
       express({gesture:'idle',text:''});
       if(error.code==='auth'){await client.auth.signOut({scope:'local'});fanAuth.open()}
     }finally{

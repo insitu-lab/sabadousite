@@ -4,9 +4,70 @@
   "description": "Contrato da conversa com IA. O texto é exibido como texto e o gesto é escolhido de uma lista permitida; não executa comandos gerados pela IA.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["text", "gesture"],
+  "required": [
+    "text",
+    "gesture"
+  ],
   "properties": {
-    "text": {"type": "string", "minLength": 1, "maxLength": 360},
-    "gesture": {"type": "string", "enum": ["idle", "talk", "point", "wave", "think", "yes", "celebrate"]}
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 360
+    },
+    "gesture": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "talk",
+        "explain",
+        "explain_steps",
+        "explain_carefully",
+        "present",
+        "present_left",
+        "present_right",
+        "point",
+        "point_left",
+        "point_up",
+        "point_down",
+        "wave",
+        "wave_both",
+        "welcome",
+        "goodbye",
+        "yes",
+        "nod_small",
+        "no",
+        "unsure",
+        "think",
+        "ponder",
+        "curious",
+        "idea",
+        "surprised",
+        "amazed",
+        "happy",
+        "laugh",
+        "celebrate",
+        "cheer",
+        "victory",
+        "proud",
+        "grateful",
+        "bow",
+        "applaud",
+        "encourage",
+        "reassure",
+        "empathy",
+        "sorry",
+        "disappointed",
+        "confused",
+        "embarrassed",
+        "shy",
+        "patient",
+        "listening",
+        "attentive",
+        "respectful",
+        "careful",
+        "playful",
+        "confident"
+      ]
+    }
   }
 }

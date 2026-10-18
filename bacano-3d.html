@@ -4,17 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12061f">
-<meta name="sabadou-build" content="build-20261018183027-9f12d5d7">
+<meta name="sabadou-build" content="build-20261018192919-545ad698">
 <title>Sabadou — bacano em 3D</title>
-<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018183027-9f12d5d7">
+<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018192919-545ad698">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018183027-9f12d5d7">
-<script src="config.js?v=build-20261018183027-9f12d5d7"></script>
-<script src="js/sabadou-visitors.js?v=build-20261018183027-9f12d5d7"></script>
-<script src="js/sabadou-maintenance.js?v=build-20261018183027-9f12d5d7"></script>
-<script defer src="js/sabadou-release.js?v=build-20261018183027-9f12d5d7"></script>
-<script defer src="js/sabadou-fan-auth.js?v=build-20261018183027-9f12d5d7"></script>
-<script defer src="js/sabadou-chat.js?v=build-20261018183027-9f12d5d7"></script>
+<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018192919-545ad698">
+<script src="config.js?v=build-20261018192919-545ad698"></script>
+<script src="js/sabadou-character-poses.js?v=build-20261018192919-545ad698"></script>
+<script src="js/sabadou-visitors.js?v=build-20261018192919-545ad698"></script>
+<script src="js/sabadou-maintenance.js?v=build-20261018192919-545ad698"></script>
+<script defer src="js/sabadou-release.js?v=build-20261018192919-545ad698"></script>
+<script defer src="js/sabadou-fan-auth.js?v=build-20261018192919-545ad698"></script>
+<script defer src="js/sabadou-chat.js?v=build-20261018192919-545ad698"></script>
 <script>
 window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 </script>
@@ -28,24 +29,14 @@ window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
   <section class="experience" aria-label="Personagem interativo em três dimensões">
     <div class="viewport" id="model-viewport">
       <div class="welcome" id="model-welcome"><img src="img/sabadou-favicon.png" alt="Logo do Sabadou"><h2>bora conhecer?</h2><p>O modelo só carrega quando você tocar aqui. A primeira abertura pode levar um pouco.</p><button class="button" id="model-start" type="button">abrir personagem 3D <span aria-hidden="true">↗</span></button></div>
-      <div class="scene-label" hidden id="model-label"><span aria-hidden="true">●</span> modelo de teste · vilão</div>
+      <div class="scene-label" hidden id="model-label"><span aria-hidden="true">●</span> bacano · modelo novo</div>
     </div>
     <div class="controls">
       <p class="status" id="model-status" role="status" aria-live="polite">Pronto para abrir.</p>
       <p class="hint" id="model-warning" role="status" hidden></p>
       <details class="model-error" id="model-error" hidden><summary>detalhes do erro</summary><pre id="model-error-detail"></pre></details>
-      <div class="expression" id="character-expression" hidden><span>demonstração de expressão</span><p id="character-expression-text" role="status"></p></div>
-      <div class="animation-buttons" aria-label="Experimentar os gestos do bacano">
-        <button class="button outline" data-motion="talk" type="button" disabled>falar</button>
-        <button class="button outline" data-motion="point" type="button" disabled>apontar</button>
-        <button class="button outline" data-motion="wave" type="button" disabled>acenar</button>
-        <button class="button outline" data-motion="think" type="button" disabled>pensar</button>
-        <button class="button outline" data-motion="yes" type="button" disabled>confirmar</button>
-        <button class="button outline" data-motion="celebrate" type="button" disabled>comemorar</button>
-        <button class="button outline" data-motion="idle" type="button" disabled>parado</button>
-      </div>
-      <details class="original-motions"><summary>animações originais do arquivo</summary><div class="animation-buttons"><button class="button small outline" data-motion="walk" type="button" disabled>andar</button><button class="button small outline" data-motion="attack" type="button" disabled>reagir</button><button class="button small outline" data-motion="fall" type="button" disabled>cair</button></div></details>
-      <div class="extra-controls"><button class="button small outline" id="model-pause" type="button" disabled>pausar</button><button class="button small outline" id="model-camera" type="button" disabled>centralizar</button><label>velocidade <select id="model-speed" disabled><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option></select></label></div><p class="hint">Arraste para girar. Use a roda do mouse ou dois dedos para aproximar. Toque no personagem para ele acenar.</p>
+      <div class="expression" id="character-expression" hidden><span>na conversa</span><p id="character-expression-text" role="status"></p></div>
+      <p class="hint">A IA escolhe as expressões do bacano conforme a conversa. Arraste para girar a visão; use a roda do mouse ou dois dedos para aproximar.</p>
     </div>
   </section>
   <aside class="chat-panel" aria-labelledby="chat-title">
@@ -68,7 +59,7 @@ window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
     <p class="chat-privacy" id="chat-privacy">Você conversa com uma IA, que pode errar. Não envie senhas nem dados pessoais. O texto e as últimas mensagens são enviados à OpenAI para gerar a resposta. Ao sair desta página, o histórico local é descartado.</p>
   </aside>
   </div>
-  <p class="footnote">Você pode conversar mesmo sem abrir o 3D. As respostas escolhem gestos do personagem; os botões de animação mostram exemplos locais. Nesta prévia não há voz nem sincronização labial.</p>
+  <p class="footnote">Você pode conversar mesmo sem abrir o 3D. A IA escolhe entre 50 expressões corporais, incluindo repouso. Nesta prévia não há voz, movimento individual dos dedos nem articulação do rosto.</p>
 </main>
 <footer><a class="logo" href="index.html#inicio">sabadou</a><small>v2.3.0</small></footer>
 <dialog id="ul" aria-labelledby="ut"><form id="ulf"><h2 id="ut">entrar</h2><label for="uh">seu @ do Instagram</label><input id="uh" placeholder="nome do Instagram (sem @)" autocomplete="username" required maxlength="30"><label for="upw">sua senha do Sabadou</label><input id="upw" type="password" placeholder="senha" autocomplete="current-password" required maxlength="72"><p id="um" role="status">Entre com seu @ e sua senha.</p><div class="animation-buttons"><button class="button small" id="usubmit" type="submit">entrar</button><button class="button small outline" id="uswitch" type="button">criar conta</button><button class="button small outline" type="button" id="chat-login-close">fechar</button></div></form></dialog>
@@ -80,7 +71,7 @@ start.addEventListener('click',async()=>{
   detail.hidden=true;detailText.textContent='';document.getElementById('model-warning').hidden=true;
   start.disabled=true;status.textContent='Preparando o 3D…';
   let stage='module';
-  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018183027-9f12d5d7');stage='model';await viewer.start()}
+  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018192919-545ad698');stage='model';await viewer.start()}
   catch(error){
     console.error('Não foi possível abrir o modelo.',error);
     status.textContent=location.protocol==='file:'?'Abra esta página pelo site publicado ou por um servidor local HTTP.':
