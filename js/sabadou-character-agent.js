@@ -1,6 +1,6 @@
 /* Local perception/action loop for this virtual scene. No network or camera. */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {WORLD_RULES} from './sabadou-character-world.js?v=build-20261018211931-f218d9ad';
+import {WORLD_RULES} from './sabadou-character-world.js?v=build-20261018213433-731aa04e';
 
 const KINDS=new Set(WORLD_RULES.actions);
 const TARGETS=new Set(WORLD_RULES.targets);

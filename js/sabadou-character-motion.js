@@ -1,6 +1,6 @@
 /* Dados de articulação e aproximação da fala. Nenhum comando da IA é executado. */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {createBodyController} from './sabadou-character-body.js?v=build-20261018211931-f218d9ad';
+import {createBodyController} from './sabadou-character-body.js?v=build-20261018213433-731aa04e';
 
 export function createCharacterMotion(model){
   const body=createBodyController(model),mouths=[];

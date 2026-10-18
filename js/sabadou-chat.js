@@ -9,7 +9,7 @@
   if(!catalog?.idle){status.textContent='Não consegui carregar a conversa por completo. Recarregue a página.';return}
   const gestures=new Set(Object.keys(catalog));
   let client=null,user=null,auth=null,history=[],busy=false,epoch=0,controller=null,lastExpression=null;
-  let cooldownUntil=0,cooldownTimer=null;
+  let cooldownUntil=0,cooldownTimer=null,cooldownSource='',isAdmin=false,privilegeRevision=0;
   const voice=window.SabadouVoice?.mount({
     onStart:payload=>window.SabadouCharacter?.startSpeech?.(payload),
     onChunk:info=>window.SabadouCharacter?.speechChunk?.(info),
@@ -28,7 +28,8 @@
   function announce(text,error=false){status.textContent=text;status.dataset.error=String(error)}
   function controls(){
     const wait=Math.max(0,Math.ceil((cooldownUntil-Date.now())/1000));
-    send.disabled=!client||busy||wait>0;send.textContent=busy?'pensando…':wait?'aguarde '+wait+'s':user?'enviar ↗':'entrar para conversar';
+    const waitLabel=wait<60?'aguarde '+wait+'s':wait<3600?'aguarde '+Math.ceil(wait/60)+' min':'aguarde '+Math.ceil(wait/3600)+' h';
+    send.disabled=!client||busy||wait>0;send.textContent=busy?'pensando…':wait?waitLabel:user?'enviar ↗':'entrar para conversar';
     input.readOnly=busy;login.disabled=!client||busy;clear.disabled=false;
     document.querySelectorAll('[data-chat-prompt]').forEach(button=>button.disabled=busy);
     form.setAttribute('aria-busy',String(busy));
@@ -47,13 +48,27 @@
   function applySession(session){
     const next=session?.user||null;
     if(next?.id!==user?.id){
-      cooldownUntil=0;clearInterval(cooldownTimer);cooldownTimer=null;
+      isAdmin=false;cooldownUntil=0;cooldownSource='';clearInterval(cooldownTimer);cooldownTimer=null;
       const draft=!user&&next?input.value:'';reset();input.value=draft;find('chat-count').textContent=draft.length+'/600';
     }
     user=next;
     account.textContent=user?(user.user_metadata?.handle?'@'+user.user_metadata.handle:'conta conectada'):'Você ainda não entrou.';
     login.textContent=user?'sair':'entrar com @';
     if(!busy)announce(user?'Pode mandar sua mensagem.':'Entre com sua conta do Sabadou para conversar.');controls();
+    const revision=++privilegeRevision;
+    if(user)refreshPrivileges(user.id,revision);
+  }
+  async function refreshPrivileges(owner,revision){
+    try{
+      const {data,error}=await client.rpc('is_admin');
+      if(revision!==privilegeRevision||user?.id!==owner)return;
+      isAdmin=!error&&data===true;
+      if(isAdmin){
+        account.textContent='admin';
+        if(cooldownSource==='site'){cooldownUntil=0;cooldownSource='';clearInterval(cooldownTimer);cooldownTimer=null}
+      }
+      controls();
+    }catch{if(revision===privilegeRevision)isAdmin=false}
   }
   const fanAuth=window.SabadouFanAuth.mount({getClient:()=>client,
     onSignedIn:async()=>{const {data}=await client.auth.getSession();applySession(data.session);input.focus()},
@@ -76,7 +91,9 @@
     input.value=button.dataset.chatPrompt;input.dispatchEvent(new Event('input'));input.focus();
   });
   clear.onclick=()=>{reset();input.value='';input.dispatchEvent(new Event('input'));announce('Conversa limpa. Pode começar outra ideia.');input.focus()};
-  function cooldown(seconds){
+  function cooldown(seconds,source='provider'){
+    if(isAdmin&&source==='site')return;
+    cooldownSource=source;
     cooldownUntil=Date.now()+Math.max(1,Math.min(86400,Number(seconds)||5))*1000;
     clearInterval(cooldownTimer);cooldownTimer=setInterval(()=>{
       controls();if(Date.now()>=cooldownUntil){clearInterval(cooldownTimer);cooldownTimer=null}
@@ -102,7 +119,10 @@
       const result=await response.json().catch(()=>null);
       if(epoch!==turn)return;
       if(!response.ok){
-        if(response.status===429)cooldown(result?.retryAfter||response.headers.get('Retry-After'));
+        if(response.status===429){
+          const siteQuota=['daily_limit','global_limit','rate_limit'].includes(result?.code)||/^(Você chegou ao limite de 40|O limite de conversas do site por hoje|Vamos com calma, calabreso)/.test(result?.error||'');
+          cooldown(result?.retryAfter||response.headers.get('Retry-After'),siteQuota?'site':'provider');
+        }
         const codes={401:'Sua sessão terminou. Entre novamente.',404:'A conversa ainda está sendo ativada. Tente novamente mais tarde.'};
         throw {code:response.status===401?'auth':'request',message:codes[response.status]||(typeof result?.error==='string'?result.error:'Não consegui responder agora. Tente novamente.')};
       }
@@ -132,7 +152,7 @@
   addEventListener('pagehide',()=>{reset();input.value='';clearInterval(cooldownTimer)});
   addEventListener('pageshow',event=>{
     if(!event.persisted)return;
-    if(Date.now()<cooldownUntil)cooldown(Math.ceil((cooldownUntil-Date.now())/1000));
+    if(Date.now()<cooldownUntil)cooldown(Math.ceil((cooldownUntil-Date.now())/1000),cooldownSource||'provider');
     announce(user?'Conversa limpa ao sair da página. Pode começar outra ideia.':'Entre com sua conta do Sabadou para conversar.');controls();
   });
   reset();

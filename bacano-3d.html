@@ -4,20 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#12061f">
-<meta name="sabadou-build" content="build-20261018211931-f218d9ad">
+<meta name="sabadou-build" content="build-20261018213433-731aa04e">
 <title>Sabadou — bacano em 3D</title>
-<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018211931-f218d9ad">
+<link rel="icon" href="img/sabadou-favicon.png?v=build-20261018213433-731aa04e">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018211931-f218d9ad">
-<script src="config.js?v=build-20261018211931-f218d9ad"></script>
-<script src="js/sabadou-character-poses.js?v=build-20261018211931-f218d9ad"></script>
-<script src="js/sabadou-character-rig.js?v=build-20261018211931-f218d9ad"></script>
-<script src="js/sabadou-visitors.js?v=build-20261018211931-f218d9ad"></script>
-<script src="js/sabadou-maintenance.js?v=build-20261018211931-f218d9ad"></script>
-<script defer src="js/sabadou-release.js?v=build-20261018211931-f218d9ad"></script>
-<script defer src="js/sabadou-fan-auth.js?v=build-20261018211931-f218d9ad"></script>
-<script defer src="js/sabadou-voice.js?v=build-20261018211931-f218d9ad"></script>
-<script defer src="js/sabadou-chat.js?v=build-20261018211931-f218d9ad"></script>
+<link rel="stylesheet" href="css/sabadou-3d.css?v=build-20261018213433-731aa04e">
+<script src="config.js?v=build-20261018213433-731aa04e"></script>
+<script src="js/sabadou-character-poses.js?v=build-20261018213433-731aa04e"></script>
+<script src="js/sabadou-character-rig.js?v=build-20261018213433-731aa04e"></script>
+<script src="js/sabadou-visitors.js?v=build-20261018213433-731aa04e"></script>
+<script src="js/sabadou-maintenance.js?v=build-20261018213433-731aa04e"></script>
+<script defer src="js/sabadou-release.js?v=build-20261018213433-731aa04e"></script>
+<script defer src="js/sabadou-fan-auth.js?v=build-20261018213433-731aa04e"></script>
+<script defer src="js/sabadou-voice.js?v=build-20261018213433-731aa04e"></script>
+<script defer src="js/sabadou-chat.js?v=build-20261018213433-731aa04e"></script>
 <script>
 window.SabadouMaintenance.guard({url:'manutencao.html?site=oficial'});
 </script>
@@ -81,7 +81,7 @@ start.addEventListener('click',async()=>{
   detail.hidden=true;detailText.textContent='';document.getElementById('model-warning').hidden=true;
   start.disabled=true;status.textContent='Preparando o 3D…';
   let stage='module';
-  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018211931-f218d9ad');stage='model';await viewer.start()}
+  try{const viewer=await import('./js/sabadou-3d.js?v=build-20261018213433-731aa04e');stage='model';await viewer.start()}
   catch(error){
     console.error('Não foi possível abrir o modelo.',error);
     status.textContent=location.protocol==='file:'?'Abra esta página pelo site publicado ou por um servidor local HTTP.':

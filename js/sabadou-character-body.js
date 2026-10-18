@@ -10,8 +10,9 @@ export function createBodyController(model){
   const find=name=>bones.find(bone=>normalize(bone.name).endsWith(normalize(name)));
   const joints=new Map(Object.keys(limits).map(name=>[name,find(name)]));
   const offsets=new Map([...joints.keys()].map(name=>[name,new THREE.Quaternion()]));
-  const applied=new Map(bones.map(bone=>[bone,new THREE.Quaternion()]));
+  const bindPose=new Map(bones.map(bone=>[bone,bone.quaternion.clone().normalize()]));
   const starting=new Map(bones.map(bone=>[bone,new THREE.Quaternion()]));
+  let appliedFrame=false;
   const sides=['Left','Right'].map((side,index)=>({
     side,key:side.toLowerCase(),sign:index===0?1:-1,
     upper:find(side+'Arm'),lower:find(side+'ForeArm'),hand:find(side+'Hand'),
@@ -32,11 +33,15 @@ export function createBodyController(model){
   const worldLook=new THREE.Vector3();let worldLookWeight=0,hasWorldLook=false;
   const temp=new THREE.Quaternion(),goal=new THREE.Quaternion(),euler=new THREE.Euler();
   const position=bone=>bone?.getWorldPosition(new THREE.Vector3())||new THREE.Vector3();
+  const finiteVector=point=>!!point?.isVector3&&[point.x,point.y,point.z].every(Number.isFinite);
+  const finiteQuaternion=q=>[q.x,q.y,q.z,q.w].every(Number.isFinite)&&q.lengthSq()>1e-12;
   const rotate=(bone,x,y,z)=>{if(bone)bone.quaternion.multiply(temp.setFromEuler(euler.set(x,y,z)))};
   function beforeUpdate(){
-    // AnimationMixer can skip writing constant tracks. Remove our previous
-    // contribution first, otherwise rotations on those bones accumulate.
-    for(const [bone,q] of applied){bone.quaternion.multiply(temp.copy(q).invert());q.identity()}
+    // Restore exact snapshots. Inverting the previous contribution magnifies
+    // small quaternion-length errors on tracks the mixer does not rewrite.
+    if(!appliedFrame)return;
+    for(const bone of bones)bone.quaternion.copy(starting.get(bone));
+    appliedFrame=false;
   }
   function setProfile(payload={}){
     profile=payload;profileAt=performance.now();until=profileAt+Math.min(20000,Math.max(3500,(payload.text?.length||0)*70));
@@ -102,7 +107,11 @@ export function createBodyController(model){
     const after=arm.hand.quaternion.clone();arm.hand.quaternion.copy(before).slerp(after,amount);
   }
   function update(now,dt){
-    for(const bone of bones)starting.get(bone).copy(bone.quaternion);
+    for(const bone of bones){
+      if(!finiteQuaternion(bone.quaternion))bone.quaternion.copy(bindPose.get(bone));
+      starting.get(bone).copy(bone.quaternion);bone.quaternion.normalize();
+    }
+    appliedFrame=true;
     elapsed+=dt;const engaged=active||now<until;
     weight+=(Number(engaged)-weight)*(1-Math.exp(-dt*5));
     armWeight+=(Number(engaged&&custom)-armWeight)*(1-Math.exp(-dt*5));
@@ -123,11 +132,12 @@ export function createBodyController(model){
     rotate(find('Spine1'),.018*breathe,.025*Math.sin(rate*.47)*rest,-.018*shift*rest);
     rotate(find('Spine2'),.022*Math.sin(rate*1.6-.4),.035*Math.sin(rate*.31)*rest,.018*Math.sin(rate*.57)*rest);
     rotate(find('Head'),lookY*rest+.02*Math.sin(rate*.83),lookX*rest,.035*Math.sin(rate*.37)*rest+(thinking?.09:0));
-    if(environment.look?.isVector3){
+    const hasLook=finiteVector(environment.look);
+    if(hasLook){
       if(!hasWorldLook)worldLook.copy(position(find('Head'))).add(new THREE.Vector3(0,0,1));
       worldLook.lerp(environment.look,1-Math.exp(-dt*4));hasWorldLook=true;
     }
-    worldLookWeight+=(Number(!!environment.look?.isVector3)-worldLookWeight)*(1-Math.exp(-dt*5));
+    worldLookWeight+=(Number(hasLook)-worldLookWeight)*(1-Math.exp(-dt*5));
     if(hasWorldLook&&worldLookWeight>.001){
       const head=find('Head');
       if(head){
@@ -140,7 +150,7 @@ export function createBodyController(model){
     }
     for(const arm of sides){
       const override=environment.arms?.[arm.key];
-      const external=!!override?.isVector3;
+      const external=finiteVector(override);
       if(external){
         if(!arm.hasExternal)arm.externalTarget.copy(position(arm.hand));
         arm.externalTarget.lerp(override,1-Math.exp(-dt*5));arm.hasExternal=true;
@@ -175,7 +185,10 @@ export function createBodyController(model){
         }
       }
     }
-    for(const bone of bones)applied.get(bone).copy(starting.get(bone)).invert().multiply(bone.quaternion);
+    for(const bone of bones){
+      if(!finiteQuaternion(bone.quaternion))bone.quaternion.copy(starting.get(bone));
+      bone.quaternion.normalize();
+    }
   }
   return {
     get custom(){return custom},hasFingers:sides.every(arm=>arm.fingers.every(finger=>finger.parts.every(part=>part.bone))),

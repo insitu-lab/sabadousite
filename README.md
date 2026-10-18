@@ -35,6 +35,11 @@ Publique tambem js/sabadou-voice.js e os estilos do pacote para habilitar a leit
 O chat agora utiliza Groq. Mantenha sua conta no plano Free; a cota pode acabar.
 O codigo nao usa a chave antiga da OpenAI nem troca para um provedor pago.
 
+Correcao de admin limitado: reexecute supabase/sql/supabase-bacano-chat.sql no projeto
+Supabase. Preserva contadores e isenta somente admins registrados das cotas locais.
+A cota do provedor continua. Essa correcao nao exige republicar a Edge Function.
+O modelo agora restaura poses exatas por quadro para evitar o desaparecimento numerico.
+
 Os SQLs e a Edge Function ficam em supabase/ na raiz do projeto de ediÃ§Ã£o e sÃ£o aplicados separadamente.
 
 Inclua release.json no upload: ele identifica esta publicaÃ§Ã£o e permite atualizar abas abertas.

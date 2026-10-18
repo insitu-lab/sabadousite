@@ -2,9 +2,9 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {DRACOLoader} from '../vendor/three/examples/jsm/loaders/DRACOLoader.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
-import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018211931-f218d9ad';
-import {createCharacterMotion} from './sabadou-character-motion.js?v=build-20261018211931-f218d9ad';
-import {createSceneAgent} from './sabadou-character-agent.js?v=build-20261018211931-f218d9ad';
+import {GESTURES,createGestureFactory} from './sabadou-character-gestures.js?v=build-20261018213433-731aa04e';
+import {createCharacterMotion} from './sabadou-character-motion.js?v=build-20261018213433-731aa04e';
+import {createSceneAgent} from './sabadou-character-agent.js?v=build-20261018213433-731aa04e';
 
 let started=false;
 export async function start(){
@@ -120,6 +120,9 @@ export async function start(){
       if(event.lengthComputable)status.textContent='Carregando personagem · '+Math.round(event.loaded/event.total*100)+'%';
     }).catch(cause=>{throw Object.assign(new Error('Não foi possível carregar o arquivo 3D. Confira se assets/3d/bacano/web e vendor/three foram publicados por completo.',{cause}),{code:'model'})});
     model=asset.scene;
+    // Bounds of a skinned mesh may still describe an earlier pose. The model
+    // is small and always on this stage, so keep it out of frustum culling.
+    model.traverse(node=>{if(node.isSkinnedMesh)node.frustumCulled=false});
     cache.set('idle',clipFor(asset.animations.find(clip=>clip.name==='idle')));
     // A malha articulada muda de posição ao aplicar o Idle. Meça os vértices
     // nessa pose, não a caixa de referência anterior à animação.
@@ -150,7 +153,7 @@ export async function start(){
     const restingFeet=footHeight();
     const autonomyStatus=document.getElementById('autonomy-status'),autonomyToggle=document.getElementById('autonomy-toggle');
     agent=createSceneAgent({scene,model,camera,onState:text=>{if(autonomyStatus)autonomyStatus.textContent=text}});
-    if(autonomyToggle){if(matchMedia('(prefers-reduced-motion: reduce)').matches)autonomyToggle.checked=false;agent.setEnabled(autonomyToggle.checked);autonomyToggle.onchange=()=>agent.setEnabled(autonomyToggle.checked)}
+    if(autonomyToggle){if(matchMedia('(prefers-reduced-motion: reduce)').matches)autonomyToggle.checked=false;agent.setEnabled(autonomyToggle.checked);autonomyToggle.onchange=()=>agent?.setEnabled(autonomyToggle.checked)}
     mixer.stopAllAction();
     mixer.addEventListener('finished',event=>{
       const id=currentId;
@@ -174,7 +177,16 @@ export async function start(){
         sequenceIndex=(sequenceIndex+1)%sequence.length;const id=sequence[sequenceIndex];select(id);
         nextGestureAt=now+Math.max(3000,(motions[id].duration||4)*1000);
       }
-      motion?.worldControl(agent?.update(dt));motion?.beforeUpdate();mixer.update(dt);motion?.update(now,dt);
+      try{
+        motion?.worldControl(agent?.update(dt));motion?.beforeUpdate();mixer.update(dt);motion?.update(now,dt);
+      }catch(error){
+        console.error('Movimentos pausados para preservar o personagem.',error);
+        motion?.reset();motion=null;agent?.dispose();agent=null;
+        if(autonomyToggle){autonomyToggle.checked=false;autonomyToggle.disabled=true}
+        if(autonomyStatus)autonomyStatus.textContent='Exploração pausada. O personagem continua em repouso.';
+        const warning=document.getElementById('model-warning');warning.textContent='Os movimentos extras foram pausados. Recarregue a página para tentar novamente.';warning.hidden=false;
+        select('idle');
+      }
       stage.position.y=homeY;model.updateWorldMatrix(true,true);
       const support=footHeight();
       if(Number.isFinite(support)&&Number.isFinite(restingFeet))stage.position.y+=THREE.MathUtils.clamp(restingFeet-support,-.5,.8);
